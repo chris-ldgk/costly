@@ -147,3 +147,7 @@ PRODUCTION_DB_PASSWORD=<secret> bun run db:migrate:production
 - Production never uses a public Postgres hostname; traffic stays on Workers VPC + Hyperdrive.
 - Postgres must speak TLS for Hyperdrive (self-signed certs are fine; VPC service uses `cert_verification_mode: disabled`).
 - Tunnel connector (`cloudflared`) must run on a host that can reach `127.0.0.1:6001`.
+
+## Workers Builds deploy failures (VPC)
+
+If `costly-api` Workers Builds fails with error **10196** (`credentials are not authorized for the requested VPC resource`), the build API token needs Workers VPC permissions. Add **Connectivity Directory Read**, **Connectivity Directory Bind**, and **Connectivity Directory Admin** (plus **Hyperdrive Edit**) to the token — see [deployment.md](./deployment.md#workers-builds-api-token).
