@@ -14,13 +14,21 @@ concurrency:
 
 jobs:
   migrate:
-    # Must run on a self-hosted runner on the Tailscale network — GitHub-hosted
-    # runners cannot reach the tunnel host at 100.69.229.78:6001.
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      # Ephemeral Tailscale node — joins the tailnet for this job only, then logs out.
+      # Requires TS_OAUTH_CLIENT_ID + TS_OAUTH_SECRET (OAuth client with auth_keys scope, tag:ci).
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v4
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
+          ping: 100.69.229.78
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2

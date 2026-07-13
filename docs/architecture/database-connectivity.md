@@ -73,14 +73,41 @@ This creates the `costly-db` Hyperdrive config, updates `wrangler.jsonc`, and ru
 Schema migrations use **Drizzle Kit** with a direct TCP connection to Postgres on the tunnel host. They do **not** go through Hyperdrive or Workers VPC — only the API Worker uses those at runtime.
 
 ```
-GitHub Actions (self-hosted runner on Tailscale)
-  → TCP 100.69.229.78:6001
-    → PostgreSQL (Docker, TLS)
+GitHub Actions (ubuntu-latest)
+  → ephemeral Tailscale node (tag:ci)
+    → TCP 100.69.229.78:6001
+      → PostgreSQL (Docker, TLS)
 ```
 
-### Why self-hosted
+### Tailscale setup (one-time)
 
-GitHub-hosted runners cannot reach the Tailscale IP (`100.69.229.78`). The workflow in `.github/workflows/migrate-production.yml` uses `runs-on: self-hosted` so the job runs on a machine on the same Tailscale network as the tunnel host.
+1. **Create a tag** in the [Tailscale admin console](https://login.tailscale.com/admin/acls/tags) — e.g. `tag:ci`.
+2. **Create an OAuth client** ([Settings → OAuth clients](https://login.tailscale.com/admin/settings/oauth)) with the **`auth_keys`** scope and the `tag:ci` tag assigned.
+3. **Add ACL rules** so CI nodes can reach Postgres on the tunnel host. Example grant (ACL policy file):
+
+```json
+{
+  "grants": [
+    {
+      "src": ["tag:ci"],
+      "dst": ["100.69.229.78"],
+      "ip": ["100.69.229.78/32:6001"]
+    }
+  ]
+}
+```
+
+Adjust the IP if your tunnel host has a different Tailscale address.
+
+4. **Add GitHub repository secrets** (Settings → Secrets and variables → Actions):
+
+| Secret | Value |
+| --- | --- |
+| `TS_OAUTH_CLIENT_ID` | OAuth client ID from step 2 |
+| `TS_OAUTH_SECRET` | OAuth client secret from step 2 |
+| `PRODUCTION_DB_PASSWORD` | Postgres password from tunnel host `.env.production` |
+
+The workflow uses [`tailscale/github-action@v4`](https://github.com/tailscale/github-action) to join an **ephemeral** node for the job duration. The node is removed automatically when the job finishes.
 
 ### Triggers
 
@@ -89,11 +116,7 @@ GitHub-hosted runners cannot reach the Tailscale IP (`100.69.229.78`). The workf
 | `workflow_dispatch` | Manual run from the GitHub Actions tab |
 | Push to `main` | When files under `apps/api/drizzle/**` change |
 
-### Required secret
-
-| Secret | Value |
-| --- | --- |
-| `PRODUCTION_DB_PASSWORD` | Postgres password from the tunnel host `.env.production` (`POSTGRES_PASSWORD`) |
+Workflow file: `.github/workflows/migrate-production.yml` — runs on `ubuntu-latest` (no permanently Tailscale-connected runner required).
 
 ### Connection string
 

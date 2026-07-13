@@ -107,6 +107,10 @@ PRODUCTION_DB_PASSWORD=<secret> bun run db:migrate:production
 
 `scripts/migrate-production.sh` builds `DATABASE_URL` (default host `100.69.229.78`, port `6001`, `sslmode=require`). Override with `PRODUCTION_DB_HOST`, `PRODUCTION_DB_PORT`, `PRODUCTION_DB_SSLMODE`, etc.
 
-**GitHub Actions:** workflow `.github/workflows/migrate-production.yml` runs on a **self-hosted** runner (must be on Tailscale). Add repository secret `PRODUCTION_DB_PASSWORD`. Trigger manually via **Actions → Migrate production database → Run workflow**, or automatically on push to `main` when `apps/api/drizzle/**` changes.
+**GitHub Actions:** workflow `.github/workflows/migrate-production.yml` joins an **ephemeral Tailscale node** per run (`tailscale/github-action@v4`), then migrates over TCP to `100.69.229.78:6001`. Runs on `ubuntu-latest` — the runner does not need to be on Tailscale permanently.
+
+Repository secrets: `TS_OAUTH_CLIENT_ID`, `TS_OAUTH_SECRET` (OAuth client with `auth_keys` scope, `tag:ci`), and `PRODUCTION_DB_PASSWORD`. See [`docs/architecture/database-connectivity.md`](../../docs/architecture/database-connectivity.md) for Tailscale ACL and OAuth setup.
+
+Trigger manually via **Actions → Migrate production database → Run workflow**, or automatically on push to `main` when `apps/api/drizzle/**` changes.
 
 See [`docs/architecture/database-connectivity.md`](../../docs/architecture/database-connectivity.md) for connectivity details and SSL notes.
