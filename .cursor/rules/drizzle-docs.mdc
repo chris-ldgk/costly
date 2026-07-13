@@ -1,0 +1,64 @@
+---
+description: How to search Drizzle ORM and Drizzle Kit documentation
+alwaysApply: false
+---
+
+# Drizzle ORM Documentation
+
+Use current Drizzle docs — do not rely on training data for API details.
+
+## Priority 1: Drizzle MCP server
+
+If the `drizzle` MCP server is available, use these tools:
+
+1. `search_drizzle_docs` — search indexed topics from `orm.drizzle.team/llms.txt`
+2. `fetch_drizzle_doc` — fetch page content by slug (e.g. `overview`, `drizzle-config-file`)
+3. `list_drizzle_topics` — list all indexed topics, optionally filtered by section
+
+Workflow: search first, then fetch the most relevant page.
+
+## Priority 2: Context7 MCP (fallback)
+
+If Drizzle MCP servers are unavailable, use Context7 `resolve-library-id` then `query-docs`:
+
+| Topic | Preferred Context7 library ID |
+| --- | --- |
+| Drizzle ORM (docs) | `/drizzle-team/drizzle-orm-docs` |
+| Drizzle ORM (source) | `/drizzle-team/drizzle-orm` |
+| LLMs index | `/llmstxt/orm_drizzle_team_llms_txt` |
+| Docs website | `/websites/orm_drizzle_team` |
+
+Pass the user's full question as the `query` parameter.
+
+## Priority 3: Direct sources (shell fallback)
+
+```bash
+# Browse the full doc index
+curl -s https://orm.drizzle.team/llms.txt
+
+# Fetch source markdown from GitHub
+curl -s https://raw.githubusercontent.com/drizzle-team/drizzle-orm-docs/main/src/content/docs/overview.mdx
+curl -s https://raw.githubusercontent.com/drizzle-team/drizzle-orm-docs/main/src/content/docs/drizzle-config-file.mdx
+curl -s https://raw.githubusercontent.com/drizzle-team/drizzle-orm-docs/main/src/content/docs/pg/kit-overview.mdx
+```
+
+## Quick reference
+
+| Area | Example slug | Docs URL |
+| --- | --- | --- |
+| Overview | `overview` | https://orm.drizzle.team/docs/overview |
+| Get started (Postgres) | `get-started/postgresql-new` | https://orm.drizzle.team/docs/get-started/postgresql-new |
+| Schema | `sql-schema-declaration` | https://orm.drizzle.team/docs/sql-schema-declaration |
+| Queries (RQB) | `rqb` | https://orm.drizzle.team/docs/rqb |
+| SQL select | `select` | https://orm.drizzle.team/docs/select |
+| Migrations | `migrations` | https://orm.drizzle.team/docs/migrations |
+| Drizzle Kit | `pg/kit-overview` | https://orm.drizzle.team/docs/pg/kit-overview |
+| Config file | `drizzle-config-file` | https://orm.drizzle.team/docs/drizzle-config-file |
+| Relations | `relations` | https://orm.drizzle.team/docs/relations |
+
+## Notes
+
+- Drizzle docs are dialect-specific: check `pg/`, `mysql/`, `sqlite/`, `cockroach/`, `mssql/`, `singlestore/` prefixes for database-specific pages.
+- Drizzle Kit (migrations, push, pull, studio) is documented alongside ORM under each dialect's `kit-*` pages.
+- A hosted `drizzle-docs` MCP exists at `drizzle.mastra.cloud` but was unreachable (HTTP 522) at setup time — the local `drizzle` server is the active option.
+- For database operations (not docs), community `drizzle-mcp` servers exist but require a local `drizzle.config.ts` — those are separate from docs search.

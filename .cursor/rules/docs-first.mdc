@@ -1,0 +1,77 @@
+---
+description: Set up docs access and search feature-specific documentation before implementing with a new framework or technology
+alwaysApply: true
+---
+
+# Docs-First for New Technology
+
+Before writing code that uses a framework, library, or platform you have not already set up in this repo, establish a documentation search path and look up the **specific feature** you are implementing. Do not rely on training data for API details.
+
+## When this applies
+
+Trigger this rule when you:
+
+- Add a new dependency or integrate a new framework/platform
+- Implement a feature using an API or pattern you have not used in this repo yet
+- Touch a technology covered by an existing docs rule but for a new capability (e.g. TanStack Query mutations when you only used queries before)
+
+Skip only for trivial usage of already-established patterns in this codebase.
+
+## Step 1: Ensure docs access exists
+
+Check in this order:
+
+1. **Existing MCP server** in `.cursor/mcp.json` or an official remote MCP
+2. **Existing docs rule** in `.cursor/rules/*-docs.mdc`
+3. **Existing agent skill** in `.agents/skills/*-docs/SKILL.md`
+4. **Context7** (`resolve-library-id` → `query-docs`) as a universal fallback
+
+If none exist for the technology, set one up **before coding**:
+
+| Option | When to use |
+| --- | --- |
+| Official/hosted MCP | Provider ships a docs MCP (e.g. `docs.mcp.cloudflare.com`) |
+| Local MCP wrapper | CLI or `llms.txt` available — add under `.cursor/mcp/<name>/` |
+| Docs rule + skill | No MCP available — add `.cursor/rules/<name>-docs.mdc` and `.agents/skills/<name>-docs/SKILL.md` with Context7 IDs and direct fetch commands |
+
+Register new MCP servers in `.cursor/mcp.json`. Update `.cursor/rules/documentation-updates.mdc` when adding a new docs rule.
+
+### Already configured in this repo
+
+| Technology | MCP | Rule | Skill |
+| --- | --- | --- | --- |
+| TanStack | `tanstack` | `tanstack-docs.mdc` | `tanstack-docs` |
+| Drizzle ORM | `drizzle` | `drizzle-docs.mdc` | `drizzle-docs` |
+| Cloudflare | `cloudflare-docs`, `cloudflare` | `cloudflare-docs.mdc` | `cloudflare-docs` |
+| Hono | `hono` | `hono-docs.mdc` | `hono-docs` |
+| Subframe | `subframe`, `subframe-docs` | — | `install`, `design`, `develop` |
+
+## Step 2: Search docs for the specific feature
+
+Before writing implementation code, search for the exact capability you need. Be specific:
+
+- ❌ "TanStack Query docs"
+- ✅ "TanStack Query useMutation invalidateQueries after server function"
+
+Workflow:
+
+1. **Search** — use the technology's MCP search tool or Context7 `query-docs`
+2. **Fetch** — read the top 1–2 most relevant pages in full
+3. **Confirm** — verify API signatures, config keys, binding names, and current patterns match the docs
+4. **Then implement** — follow documented patterns, not assumptions
+
+Pass the user's full task and the specific feature as the search query.
+
+## Step 3: Implement using documented patterns
+
+- Match naming, file placement, and conventions from both the docs and this repo's architecture rules
+- If docs conflict with an existing repo convention, prefer repo conventions and note the discrepancy
+- If docs show a breaking or version-specific API, confirm against the version in `package.json`
+
+## Completion criteria
+
+A task is not done if:
+
+- New technology was used without an MCP, rule, or skill for future doc lookup
+- Code was written before searching docs for the specific feature being implemented
+- Implementation contradicts fetched documentation without an explicit reason

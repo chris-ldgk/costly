@@ -1,0 +1,64 @@
+---
+description: How to search Hono web framework documentation
+alwaysApply: false
+---
+
+# Hono Documentation
+
+Use current Hono docs — do not rely on training data for API details.
+
+## Priority 1: Hono MCP server
+
+If the `hono` MCP server is available, use these tools:
+
+1. `search_hono_docs` — find pages by keyword; filter with `category` (`getting-started`, `middleware`, `helpers`, `guides`, `concepts`, `api`)
+2. `fetch_hono_doc` — get full Markdown by URL or slug
+3. `list_hono_topics` — browse all indexed topics
+
+Workflow: search first, then fetch the most relevant page.
+
+## Priority 2: Context7 MCP (fallback)
+
+If the Hono MCP server is unavailable, use Context7 `resolve-library-id` then `query-docs`:
+
+| Source | Preferred Context7 library ID |
+| --- | --- |
+| Hono docs site | `/websites/hono_dev` |
+| Hono website repo | `/honojs/website` |
+| Hono source | `/honojs/hono` |
+| LLMs full index | `/llmstxt/hono_dev_llms-full_txt` |
+
+Pass the user's full question as the `query` parameter.
+
+## Priority 3: Direct sources (shell fallback)
+
+```bash
+# Doc index
+curl -s https://hono.dev/llms.txt
+
+# Full/tiny doc dumps
+curl -s https://hono.dev/llms-full.txt
+curl -s https://hono.dev/llms-small.txt
+
+# Fetch a page as Markdown
+curl -sH "Accept: text/markdown" https://hono.dev/docs/getting-started/cloudflare-workers
+curl -sH "Accept: text/markdown" https://hono.dev/docs/api/hono
+curl -sH "Accept: text/markdown" https://hono.dev/docs/middleware/builtin/jwt
+```
+
+## Category quick reference
+
+| Category | Example slug | Docs URL |
+| --- | --- | --- |
+| Getting started | `getting-started/cloudflare-workers` | https://hono.dev/docs/getting-started/cloudflare-workers |
+| Middleware | `middleware/builtin/jwt` | https://hono.dev/docs/middleware/builtin/jwt |
+| Helpers | `helpers/cookie` | https://hono.dev/docs/helpers/cookie |
+| Guides | `guides/rpc` | https://hono.dev/docs/guides/rpc |
+| Concepts | `concepts/routers` | https://hono.dev/docs/concepts/routers |
+| API | `api/hono` | https://hono.dev/docs/api/hono |
+
+## Notes
+
+- Hono has no official docs MCP server; use this project's local MCP or Context7.
+- `hono-mcp` and `@hono/mcp` on npm are for building MCP servers with Hono — not for searching Hono docs.
+- Hono runs on Cloudflare Workers, Deno, Bun, Node.js, and other runtimes — check `getting-started/` for runtime-specific setup.

@@ -1,0 +1,82 @@
+---
+description: Regenerate worker-configuration.d.ts when environment variables or Cloudflare bindings change
+alwaysApply: true
+---
+
+# Worker Configuration Types
+
+When you change environment variables or Cloudflare bindings, regenerate the Wrangler type declarations in the same task. Do not hand-edit generated files.
+
+## Generated files
+
+| Workspace | File | Command |
+| --- | --- | --- |
+| `apps/api` | `worker-configuration.d.ts` | `bun run cf-typegen` |
+| `apps/frontend` | `worker-configuration.d.ts` | `bun run cf-typegen` |
+
+These files define `CloudflareBindings`, which is used throughout each app for typed access to `env` and service bindings.
+
+## When to regenerate
+
+Run `cf-typegen` after changing any of:
+
+- `wrangler.jsonc` `vars` (e.g. `PUBLIC_URL`, `CORS_ORIGINS`, `VITE_*`)
+- Service bindings (`services` in frontend wrangler config)
+- Hyperdrive, KV, R2, D1, or other binding blocks
+- RPC entrypoints referenced by service bindings (e.g. `FrontendEntrypoint`)
+- Secrets or env vars consumed in code (even if set via dashboard or `.env`)
+
+## Workflow
+
+1. Update `wrangler.jsonc` (and any Zod env schemas in `src/utils/env.ts`).
+2. Regenerate types in every affected workspace:
+
+```bash
+cd apps/api && bun run cf-typegen
+cd apps/frontend && bun run cf-typegen
+```
+
+3. Verify `CloudflareBindings` reflects the new bindings/vars.
+4. Update any code that reads from `cfEnv` or `CloudflareBindings`.
+5. Run `bun run typecheck` from the repo root.
+
+## Workspace specifics
+
+### `apps/api`
+
+- Config: `apps/api/wrangler.jsonc`
+- Env schema: `apps/api/src/utils/env.ts`
+- Current bindings: `DB` (Hyperdrive), `COSTLY_DB` (VPC Network → `costly-db` tunnel), `COSTLY_DB_POSTGRES` (VPC Service), `KV`, `BUCKET` (R2)
+- `cf-typegen` runs: `wrangler types --env-interface CloudflareBindings`
+
+### `apps/frontend`
+
+- Config: `apps/frontend/wrangler.jsonc`
+- Env schemas: `apps/frontend/src/utils/env.ts` (`secretEnvSchema`, `publicEnvSchema`)
+- Service binding: `API` → `costly-api` / `FrontendEntrypoint`
+- `cf-typegen` merges both configs: `wrangler types -c ./wrangler.jsonc -c ../api/wrangler.jsonc`
+- This is required so `API` is typed as `Service<typeof FrontendEntrypoint>`
+
+## Related updates
+
+When bindings or env vars change, also update:
+
+- Zod env schemas in the affected app's `src/utils/env.ts`
+- `getLib()` helpers that consume bindings
+- Relevant README files and `.cursor/rules/monorepo-architecture.mdc`
+- `packages/api-client/tsconfig.json` includes `apps/api/worker-configuration.d.ts` — API binding changes may require re-typechecking that package
+
+## Rules
+
+- Never manually edit `worker-configuration.d.ts` — always regenerate with `cf-typegen`.
+- Never reference bindings in code without confirming they exist in the generated `CloudflareBindings`.
+- If you add a frontend env var, add it to `wrangler.jsonc` vars and `publicEnvSchema` / `secretEnvSchema` as appropriate.
+- If you add an API binding, regenerate frontend types too when the frontend consumes it via service binding.
+
+## Completion criteria
+
+A task is not done if:
+
+- `wrangler.jsonc` changed but `worker-configuration.d.ts` was not regenerated
+- Code references a binding or env var missing from `CloudflareBindings`
+- Zod env schemas are out of sync with wrangler vars/secrets

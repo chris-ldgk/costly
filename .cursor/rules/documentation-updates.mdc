@@ -1,0 +1,89 @@
+---
+description: Keep README.md, docs/, and .cursor/rules documentation in sync when making code changes
+alwaysApply: true
+---
+
+# Documentation Updates
+
+When you change code, architecture, conventions, or tooling, update the relevant documentation in the same task. Do not leave docs stale.
+
+## Required docs to maintain
+
+### Business logic (`docs/`)
+
+Product behavior, domain rules, and app-level architecture decisions live in `docs/`. See [`.cursor/rules/business-logic-docs.mdc`](./business-logic-docs.mdc) for the full workflow.
+
+| Path | Update when you change… |
+| --- | --- |
+| `docs/product/` | Vision, user roles, flows, feature scope, UX rules |
+| `docs/domain/` | Entities, invariants, validation, calculations, workflows |
+| `docs/architecture/` | Service boundaries, data ownership, integrations |
+| `docs/decisions/` | Significant product or architecture choices (ADRs) |
+| `docs/README.md` | Index links when adding new doc files |
+
+### README files
+
+| File | Update when you change… |
+| --- | --- |
+| `README.md` | Monorepo structure, stack, core principles, root scripts, getting started |
+| `apps/api/README.md` | API layout, routes, handlers, schema, DB scripts, bindings, RPC entrypoints |
+| `apps/frontend/README.md` | Frontend layout, routing, server functions, data-fetching patterns, dev commands |
+| `packages/api-client/README.md` | Client usage, type inference, when to use HTTP vs service binding |
+| `packages/components/README.md` | Subframe sync, component conventions, exports, Tailwind preset |
+
+Update the README closest to the change. If a change affects multiple workspaces or cross-cutting principles, update the root `README.md` too.
+
+### Cursor rules files
+
+| File | Update when you change… |
+| --- | --- |
+| `.cursor/rules/docs-first.mdc` | Docs-first workflow, MCP/skill setup for new technologies |
+| `.cursor/rules/monorepo-architecture.mdc` | App/package structure, data flow, dual-access pattern, service bindings, adding resources |
+| `.cursor/rules/worker-configuration-types.mdc` | Wrangler bindings, env vars, `worker-configuration.d.ts` regeneration |
+| `.cursor/rules/lint-and-typecheck.mdc` | Lint/typecheck commands, ESLint config, CI checks |
+| `.cursor/rules/tanstack-docs.mdc` | TanStack MCP setup or doc-search workflow |
+| `.cursor/rules/drizzle-docs.mdc` | Drizzle MCP setup or doc-search workflow |
+| `.cursor/rules/cloudflare-docs.mdc` | Cloudflare MCP setup or doc-search workflow |
+| `.cursor/rules/hono-docs.mdc` | Hono MCP setup or doc-search workflow |
+| `.cursor/rules/business-logic-docs.mdc` | Business-logic doc workflow, `docs/` structure, ADR conventions |
+
+Add a new rule file when introducing a new cross-cutting convention that agents should always follow.
+
+## When to update
+
+Update docs when you:
+
+- Add, rename, or remove apps, packages, routes, handlers, bindings, or scripts
+- Change architecture patterns (API access, data fetching, component sourcing, etc.)
+- Add or change dev commands (`package.json` scripts, wrangler config, DB workflows)
+- Add, rename, or remove environment variables or Cloudflare bindings
+- Introduce new conventions agents or contributors must follow
+- Add docs access (MCP server, docs rule, or skill) for a new framework or technology
+- Change MCP servers, lint/typecheck setup, or tooling workflows
+- Add, change, or remove business rules, domain entities, or product flows (update `docs/` per business-logic-docs rule)
+
+Skip doc updates only for trivial changes that do not affect structure, usage, or conventions (e.g. typo fix in a comment, pure formatting).
+
+## Workflow
+
+1. Make the code change.
+2. Identify which README(s) and rule(s) are now outdated.
+3. Update them in the same turn — concise, accurate, matching existing tone.
+4. If architecture or principles changed, update both the relevant README and `monorepo-architecture.mdc`.
+5. Run lint/typecheck per the lint-and-typecheck rule.
+
+## Writing guidelines
+
+- Keep READMEs practical: purpose, layout, commands, conventions.
+- Keep rules actionable: what to do, where files live, which commands to run.
+- Do not duplicate large blocks across files — link between root README and workspace READMEs where helpful.
+- Prefer updating existing sections over adding redundant new ones.
+
+## Completion criteria
+
+A task is not done if:
+
+- Code changed but related README, `docs/`, or rules files were left outdated
+- New conventions exist only in code/comments but not in rules or README
+- Business logic changed in code but not in `docs/`
+- Root README still describes removed apps, packages, scripts, or patterns

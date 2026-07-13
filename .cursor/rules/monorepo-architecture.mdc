@@ -1,0 +1,163 @@
+---
+description: Monorepo architecture, directory conventions, and data-flow patterns for apps and packages
+alwaysApply: true
+---
+
+# Monorepo Architecture
+
+Bun workspaces monorepo (`@costly/monorepo`). Two apps, two shared packages.
+
+## Apps
+
+### `apps/api` (`@costly/api`)
+
+Cloudflare Worker — the **only** app that talks to the database and external services.
+
+```
+apps/api/src/
+├── index.ts              # fetch handler + FrontendEntrypoint RPC class
+├── exports.ts            # Re-exports AppRouter type for @costly/api-client
+├── handlers/             # Business logic + all Drizzle queries
+├── middlewares/          # Hono middleware (injects Lib: db, kv, bucket, env)
+├── routers/              # Hono HTTP routes
+│   ├── index.ts          # appRouter → /api
+│   └── api/v1/           # Versioned resource routers (books, authors, …)
+├── schema/               # Drizzle tables, relations, Zod schemas
+└── utils/                # env, id generation, getLib()
+```
+
+**Bindings** (via Hyperdrive, KV, R2): configured in `wrangler.jsonc`.
+
+**DB scripts:** `db:up`, `db:down`, `db:generate`, `db:migrate`.
+
+### `apps/frontend` (`frontend`)
+
+TanStack Start (React SSR) on Cloudflare Workers.
+
+```
+apps/frontend/src/
+├── routes/               # File-based TanStack Router pages
+├── handlers/             # TanStack Start server functions
+├── middlewares/          # Request middleware (injects lib with API binding)
+├── lib/                  # apiClient (HTTP fallback — avoid in routes)
+├── utils/                # env, getLib(), plain() helper
+├── styles/tailwind.css   # Tailwind entry
+├── router.tsx            # Router + TanStack Query SSR integration
+└── start.ts              # createStart() with CSRF + lib middleware
+```
+
+**Import alias:** `#/*` → `./src/*`.
+
+**Service binding:** `cfEnv.API` → `FrontendEntrypoint` on `costly-api` (see `wrangler.jsonc`).
+
+## Packages
+
+### `packages/api-client` (`@costly/api-client`)
+
+Automatic type-safe Hono RPC client. **Not codegen** — types are inferred at compile time from `AppRouter` exported by `@costly/api`.
+
+```typescript
+import { createApiClient } from "@costly/api-client";
+const client = createApiClient(apiUrl);
+// client.api.v1.books.$get({ query: { limit: 10 } })
+```
+
+Use only when client-side HTTP fetch is genuinely needed. Prefer server functions + service binding.
+
+### `packages/components` (`@costly/components`)
+
+Subframe-generated UI library. Synced from Subframe — **do not hand-author components here**.
+
+```
+packages/components/
+├── .subframe/sync.json   # Subframe project config
+└── ui/
+    ├── index.ts          # Barrel exports
+    ├── components/       # One folder per component (Button/, TextField/, …)
+    ├── layouts/          # DefaultPageLayout, DialogLayout, DrawerLayout
+    └── tailwind.config.js
+```
+
+**Sync:** `cd packages/components && bun sync`
+
+**Convention:** edit `index.tsx` wrappers, not the generated `Component.tsx` files. Use `// @subframe/sync-disable` to protect customizations.
+
+**Import in frontend:** `import { Button, TextField } from "@costly/components"`.
+
+## Core Principles
+
+### 1. Database and external services live in the API app only
+
+All Drizzle queries, Postgres access (via Hyperdrive), KV, R2, and outbound HTTP calls happen in `apps/api`. The frontend never touches the database directly.
+
+### 2. All database queries go through Drizzle
+
+Queries live in `apps/api/src/handlers/`, using the Drizzle relational query API. Schema in `apps/api/src/schema/`. Migrations in `apps/api/drizzle/`.
+
+### 3. Dual access: Hono route + service RPC per public endpoint
+
+Every public API endpoint has **two** entry points sharing the same handler:
+
+| Access | Where | Used by |
+| --- | --- | --- |
+| HTTP | Hono router at `/api/v1/<resource>` | External clients, `@costly/api-client` |
+| RPC | `FrontendEntrypoint` method in `index.ts` | Frontend via service binding |
+
+```
+handlers/getAuthors()          ← shared business logic
+    ├── routers/api/v1/authors.ts   ← Hono .get("/", …)
+    └── FrontendEntrypoint.getAuthors()  ← RPC method
+```
+
+When adding a resource, always create both the Hono route and the `FrontendEntrypoint` method.
+
+### 4. Frontend calls API via service binding through server functions
+
+Never call the API directly from client components. Flow:
+
+```
+Route loader / useServerFn()
+  → createServerFn handler (frontend Worker)
+    → context.lib.api (service binding)
+      → FrontendEntrypoint.method() (api Worker)
+        → handlers/*.ts → Drizzle
+```
+
+Server functions live in `apps/frontend/src/handlers/`. Use `plain()` to strip non-serializable values from RPC responses.
+
+### 5. Server-first data fetching with TanStack Query
+
+Routes fetch data on the server in the `loader`, then hydrate TanStack Query on the client:
+
+```typescript
+// loader: server-side fetch
+loader: async ({ context: { search } }) => {
+  const data = await getAuthorsFn({ data: search });
+  return { authors: data };
+},
+
+// component: hydrate + client refetch
+const { authors: initialAuthors } = Route.useLoaderData();
+const getAuthors = useServerFn(getAuthorsFn);
+const { data: authors } = useQuery({
+  initialData: initialAuthors,
+  queryKey: ["authors", search],
+  queryFn: () => getAuthors({ data: search }),
+});
+```
+
+Mutations invalidate related query keys on success.
+
+### 6. UI components from `@costly/components`
+
+Use `@costly/components` for UI primitives and layouts. New custom components in the frontend use **Tailwind v3** (configured in `apps/frontend/tailwind.config.js` with the `@costly/components/tailwind-config` preset).
+
+## Adding a New Resource (checklist)
+
+1. **Schema** — `apps/api/src/schema/<resource>.ts` + export from `index.ts`
+2. **Handlers** — `apps/api/src/handlers/<resource>.ts` (all Drizzle queries here)
+3. **Hono router** — `apps/api/src/routers/api/v1/<resource>.ts` + mount in `v1/index.ts`
+4. **RPC methods** — add to `FrontendEntrypoint` in `apps/api/src/index.ts`
+5. **Server functions** — `apps/frontend/src/handlers/<resource>.ts`
+6. **Route** — `apps/frontend/src/routes/...` with loader + useQuery pattern
+7. **Regenerate types** — `bun run cf-typegen` in both apps after binding changes

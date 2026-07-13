@@ -1,0 +1,14 @@
+{
+  "name": "cloudflare-mcp",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Local MCP server for Cloudflare product documentation search and retrieval",
+  "bin": {
+    "cloudflare-mcp": "./index.mjs"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.27.1",
+    "zod": "^3.25.0"
+  }
+}

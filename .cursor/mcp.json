@@ -1,0 +1,32 @@
+{
+  "mcpServers": {
+    "subframe": {
+      "url": "https://mcp.subframe.com/mcp"
+    },
+    "subframe-docs": {
+      "url": "https://docs.subframe.com/mcp"
+    },
+    "cloudflare-api": {
+      "url": "https://mcp.cloudflare.com/mcp"
+    },
+    "cloudflare-docs": {
+      "url": "https://docs.mcp.cloudflare.com/mcp"
+    },
+    "cloudflare": {
+      "command": "node",
+      "args": [".cursor/mcp/cloudflare/index.mjs"]
+    },
+    "tanstack": {
+      "command": "node",
+      "args": [".cursor/mcp/tanstack/index.mjs"]
+    },
+    "drizzle": {
+      "command": "node",
+      "args": [".cursor/mcp/drizzle/index.mjs"]
+    },
+    "hono": {
+      "command": "node",
+      "args": [".cursor/mcp/hono/index.mjs"]
+    }
+  }
+}

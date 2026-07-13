@@ -1,0 +1,31 @@
+{
+  "name": "@costly/monorepo",
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "private": true,
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "typecheck": "bun run typecheck:api && bun run typecheck:frontend && bun run typecheck:api-client && bun run typecheck:components",
+    "typecheck:api": "bun run --filter @costly/api typecheck",
+    "typecheck:frontend": "bun run --filter frontend typecheck",
+    "typecheck:api-client": "bun run --filter @costly/api-client typecheck",
+    "typecheck:components": "bun run --filter @costly/components typecheck",
+    "check": "bun run typecheck && bun run lint"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.4",
+    "@types/bun": "latest",
+    "eslint": "^9.39.4",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.5.2",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.56.1"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}

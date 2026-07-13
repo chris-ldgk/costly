@@ -1,0 +1,42 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "costly-api",
+  "account_id": "4c1f658199b03cc5095e7a3c6563457d",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-07-09",
+  "compatibility_flags": ["nodejs_compat"],
+  "vpc_networks": [
+    {
+      "binding": "COSTLY_DB",
+      "tunnel_id": "c64a2817-e14d-40d6-842c-2554b45bb79b",
+      "remote": true,
+    },
+  ],
+  "vpc_services": [
+    {
+      "binding": "COSTLY_DB_POSTGRES",
+      "service_id": "019f5cb7-5cf7-7313-a044-5bd5bde09191",
+      "remote": true,
+    },
+  ],
+  "vars": {
+    "CORS_ORIGINS": "http://localhost:3000",
+    "BETTER_AUTH_URL": "http://localhost:8787",
+    "ALLOWED_USERS": "[{\"email\":\"ckolb@protonmail.com\",\"name\":\"Chris\"},{\"email\":\"jacquelinesegeth12@gmail.com\",\"name\":\"Jac\"}]",
+    "NODE_ENV": "development",
+  },
+  "hyperdrive": [
+    {
+      "binding": "DB",
+      "id": "bd79b0e6deac49488e97473faa5d76b3",
+      "localConnectionString": "postgres://postgres:postgres@localhost:5432/costly-api",
+    },
+  ],
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1,
+  },
+  "triggers": {
+    "crons": ["0 * * * *"],
+  },
+}

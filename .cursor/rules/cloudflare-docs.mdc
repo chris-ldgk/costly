@@ -1,0 +1,88 @@
+---
+description: How to search Cloudflare Workers, R2, D1, Hyperdrive, KV, AI, AI Gateway, Stream, and Images documentation
+alwaysApply: false
+---
+
+# Cloudflare Documentation
+
+Use current Cloudflare docs — do not rely on training data for API details.
+
+## Priority 1: Cloudflare docs MCP servers
+
+### Official docs search (preferred)
+
+If the `cloudflare-docs` MCP server is available:
+
+- `search_cloudflare_documentation` — semantic search across all Cloudflare documentation (Vectorize-backed)
+
+Requires OAuth on first connect.
+
+### Local docs index (fallback)
+
+If the `cloudflare` MCP server is available:
+
+1. `search_cloudflare_docs` — search indexed topics; filter with `product`
+2. `fetch_cloudflare_doc` — fetch Markdown by URL from search results
+3. `list_cloudflare_topics` — browse topics for a product
+4. `list_cloudflare_products` — list supported products
+
+Workflow: search first, then fetch the most relevant page.
+
+### Account/API MCP (separate concern)
+
+`cloudflare-api` (`mcp.cloudflare.com`) provides API access via `search()` and `execute()` — use for account operations, not doc lookup.
+
+Product-specific MCP servers (require OAuth):
+- Workers Bindings (KV, R2, D1, Workers): `bindings.mcp.cloudflare.com`
+- AI Gateway logs: `ai-gateway.mcp.cloudflare.com`
+
+## Priority 2: Context7 MCP (fallback)
+
+| Product | Preferred Context7 library ID |
+| --- | --- |
+| Workers | `/websites/developers_cloudflare_workers` |
+| R2 | `/websites/developers_cloudflare_r2` |
+| D1 | `/llmstxt/developers_cloudflare_d1_llms-full_txt` |
+| Hyperdrive | `/websites/developers_cloudflare_hyperdrive` |
+| KV | `/llmstxt/developers_cloudflare_kv_llms_txt` |
+| AI / Workers AI | `/llmstxt/developers_cloudflare_workers-ai_llms-full_txt` |
+| AI Gateway | `/llmstxt/developers_cloudflare_ai-gateway_llms-full_txt` |
+| Stream | `/llmstxt/developers_cloudflare_stream_llms-full_txt` |
+| Images | `/websites/developers_cloudflare_images` |
+| All products | `/cloudflare/cloudflare-docs` |
+
+Pass the user's full question as the `query` parameter.
+
+## Priority 3: Direct sources (shell fallback)
+
+```bash
+# Product doc indexes
+curl -s https://developers.cloudflare.com/llms.txt
+curl -s https://developers.cloudflare.com/workers/llms.txt
+curl -s https://developers.cloudflare.com/r2/llms.txt
+curl -s https://developers.cloudflare.com/d1/llms.txt
+
+# Fetch a page as Markdown
+curl -sH "Accept: text/markdown" https://developers.cloudflare.com/workers/
+curl -s https://developers.cloudflare.com/r2/get-started/index.md
+```
+
+## Product quick reference
+
+| Product | `product` filter | Docs base |
+| --- | --- | --- |
+| Workers | `workers` | https://developers.cloudflare.com/workers/ |
+| R2 | `r2` | https://developers.cloudflare.com/r2/ |
+| D1 | `d1` | https://developers.cloudflare.com/d1/ |
+| Hyperdrive | `hyperdrive` | https://developers.cloudflare.com/hyperdrive/ |
+| KV | `kv` | https://developers.cloudflare.com/kv/ |
+| AI / Workers AI | `ai` | https://developers.cloudflare.com/ai/ |
+| AI Gateway | `ai-gateway` | https://developers.cloudflare.com/ai-gateway/ |
+| Stream | `stream` | https://developers.cloudflare.com/stream/ |
+| Images | `images` | https://developers.cloudflare.com/images/ |
+
+## Notes
+
+- Each product publishes an `llms.txt` index with direct Markdown URLs.
+- Workers bindings (KV, R2, D1) are configured in `wrangler.toml` / `wrangler.jsonc` — search the relevant product docs for binding syntax.
+- `ai` covers Workers AI models and inference; `ai-gateway` covers observability, caching, and routing for external AI providers.

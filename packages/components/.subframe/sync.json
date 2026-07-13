@@ -1,0 +1,7 @@
+{
+  "directory": "./ui",
+  "importAlias": "@costly/components/*",
+  "projectId": "83ff6ab45d9f",
+  "teamId": 925,
+  "cssType": "tailwind"
+}

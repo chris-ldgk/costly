@@ -1,0 +1,67 @@
+---
+description: How to search TanStack Start, Router, Query, Form, DevTools, and CLI documentation
+alwaysApply: false
+---
+
+# TanStack Documentation
+
+Use current TanStack docs — do not rely on training data for API details.
+
+## Priority 1: TanStack MCP server
+
+If the `tanstack` MCP server is available, use these tools:
+
+1. `search_tanstack_docs` — find pages by keyword; filter with `library` (`start`, `router`, `query`, `form`, `devtools`, `cli`)
+2. `fetch_tanstack_doc` — get full Markdown for a page path found via search
+3. `list_tanstack_libraries` — discover libraries, versions, and docs URLs
+
+Workflow: search first, then fetch the most relevant page.
+
+## Priority 2: Context7 MCP (fallback)
+
+If the TanStack MCP server is unavailable, use Context7 `resolve-library-id` then `query-docs`:
+
+| Product | Preferred Context7 library ID |
+| --- | --- |
+| TanStack Start | `/websites/tanstack_start_framework_react` |
+| TanStack Router | `/tanstack/router` |
+| TanStack Query | `/tanstack/query` |
+| TanStack Form | `/tanstack/form` |
+| TanStack DevTools | `/tanstack/devtools` |
+| TanStack CLI | `/tanstack/cli` |
+
+Pass the user's full question as the `query` parameter.
+
+## Priority 3: TanStack CLI (shell fallback)
+
+```bash
+# Search docs
+npx @tanstack/cli search-docs "server functions" --library start --framework react --json
+
+# Fetch a specific page
+npx @tanstack/cli doc router "framework/react/overview" --json
+npx @tanstack/cli doc query "framework/react/guides/queries" --json
+npx @tanstack/cli doc form "framework/react/guides/basic-concepts" --json
+npx @tanstack/cli doc devtools "overview" --json
+npx @tanstack/cli doc cli "cli-reference" --json
+
+# List all libraries
+npx @tanstack/cli libraries --json
+```
+
+## Library quick reference
+
+| Library | CLI `--library` | Docs base URL |
+| --- | --- | --- |
+| Start | `start` | https://tanstack.com/start/latest/docs |
+| Router | `router` | https://tanstack.com/router/latest/docs |
+| Query | `query` | https://tanstack.com/query/latest/docs |
+| Form | `form` | https://tanstack.com/form/latest/docs |
+| DevTools | `devtools` | https://tanstack.com/devtools/latest/docs |
+| CLI | `cli` | https://tanstack.com/cli/latest/docs |
+
+## Notes
+
+- TanStack removed the built-in CLI MCP server; use this project's local MCP wrapper or CLI commands instead.
+- For React projects, include `--framework react` when searching Start, Router, Query, or Form docs.
+- DevTools is alpha; CLI docs include add-on scaffolding and the MCP migration guide.

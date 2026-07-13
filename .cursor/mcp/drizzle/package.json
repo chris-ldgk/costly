@@ -1,0 +1,14 @@
+{
+  "name": "drizzle-mcp",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Local MCP server for Drizzle ORM documentation search and retrieval",
+  "bin": {
+    "drizzle-mcp": "./index.mjs"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.27.1",
+    "zod": "^3.25.0"
+  }
+}

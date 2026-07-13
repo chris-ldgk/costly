@@ -1,0 +1,67 @@
+---
+description: Require passing lint and typecheck before finishing any code change task
+alwaysApply: true
+---
+
+# Lint and Typecheck Gate
+
+Do not consider a coding task finished until lint and typecheck pass for all affected workspaces.
+
+## Required before finishing
+
+1. Run checks for every workspace you changed.
+2. Fix all errors you introduced.
+3. Re-run checks after fixes until they pass.
+
+## Commands
+
+From the repo root:
+
+```bash
+bun run check          # typecheck + lint (preferred final gate)
+bun run typecheck      # all workspaces
+bun run lint           # all workspaces
+```
+
+Targeted checks when the change is scoped:
+
+```bash
+bun run typecheck:api
+bun run typecheck:frontend
+bun run typecheck:api-client
+bun run typecheck:components
+
+bun run --filter @costly/api lint
+bun run --filter frontend lint
+bun run --filter @costly/api-client lint
+bun run --filter @costly/components lint
+```
+
+## Workflow
+
+After making code changes:
+
+1. Run `ReadLints` on edited files for fast feedback.
+2. Run the relevant `typecheck` and `lint` commands.
+3. Fix reported issues in the same turn when possible.
+4. Re-run until clean.
+5. Only then summarize the work as complete.
+
+## Rules
+
+- Never skip checks because a task "seems small".
+- Never leave newly introduced lint or TypeScript errors for the user to fix.
+- Pre-existing failures in untouched files may be noted, but do not add new ones.
+- If a check cannot be run, say why and what still needs verification.
+- Question-only or review-only tasks with no code edits do not require checks.
+
+## Affected workspaces
+
+| Path | Package | Scripts |
+| --- | --- | --- |
+| `apps/api` | `@costly/api` | `typecheck`, `lint` |
+| `apps/frontend` | `frontend` | `typecheck`, `lint` |
+| `packages/api-client` | `@costly/api-client` | `typecheck`, `lint` |
+| `packages/components` | `@costly/components` | `typecheck`, `lint` |
+
+If you change shared types in `@costly/api`, also typecheck `@costly/api-client` and `frontend`.

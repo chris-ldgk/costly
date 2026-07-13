@@ -1,0 +1,37 @@
+{
+  "name": "@costly/api",
+  "type": "module",
+  "main": "src/exports.ts",
+  "scripts": {
+    "dev": "wrangler dev",
+    "dev:scheduled": "wrangler dev --test-scheduled",
+    "scheduled:run": "curl -sf \"http://127.0.0.1:${WRANGLER_PORT:-8787}/__scheduled\"",
+    "deploy": "wrangler deploy --minify",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "lint": "eslint .",
+    "cf-typegen": "wrangler types --env-interface CloudflareBindings",
+    "db:up": "docker compose -f docker-compose.local.yml up -d",
+    "db:down": "docker compose -f docker-compose.local.yml down",
+    "hyperdrive:setup": "bash scripts/setup-hyperdrive.sh",
+    "db:generate": "drizzle-kit generate --config drizzle.config.ts",
+    "db:migrate": "drizzle-kit migrate --config drizzle.config.ts",
+    "db:migrate:production": "bash scripts/migrate-production.sh"
+  },
+  "dependencies": {
+    "@better-auth/drizzle-adapter": "^1.6.23",
+    "@hono/zod-validator": "^0.8.0",
+    "better-auth": "^1.6.23",
+    "drizzle-orm": "^1.0.0-rc.4",
+    "hono": "^4.12.27",
+    "pg": "^8.22.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@better-auth/cli": "^1.4.21",
+    "@types/node": "^26.1.1",
+    "@types/pg": "^8.20.0",
+    "dotenv": "^17.4.2",
+    "drizzle-kit": "^1.0.0-rc.4",
+    "wrangler": "^4.4.0"
+  }
+}

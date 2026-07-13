@@ -1,0 +1,35 @@
+name: Migrate production database
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - apps/api/drizzle/**
+
+concurrency:
+  group: migrate-production
+  cancel-in-progress: false
+
+jobs:
+  migrate:
+    # Must run on a self-hosted runner on the Tailscale network — GitHub-hosted
+    # runners cannot reach the tunnel host at 100.69.229.78:6001.
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Run production migrations
+        working-directory: apps/api
+        env:
+          PRODUCTION_DB_PASSWORD: ${{ secrets.PRODUCTION_DB_PASSWORD }}
+        run: bun run db:migrate:production

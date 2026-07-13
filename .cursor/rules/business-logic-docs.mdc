@@ -1,0 +1,86 @@
+---
+description: Business logic and product decisions live in docs/ and must stay in sync with code
+alwaysApply: true
+---
+
+# Business Logic Documentation
+
+The `docs/` directory is the **source of truth** for product behavior, domain rules, and app-level architecture decisions. Code implements what is documented — not the other way around.
+
+Technical how-to (commands, bindings, file layout) stays in READMEs and `.cursor/rules/`. Business meaning and rules stay in `docs/`.
+
+## What belongs in `docs/`
+
+| Location | Contents |
+| --- | --- |
+| `docs/README.md` | Index, doc conventions, how to add or update docs |
+| `docs/product/` | Product vision, user roles, flows, UX rules, feature scope |
+| `docs/domain/` | Entities, relationships, invariants, validation rules, calculations |
+| `docs/architecture/` | App-level design: service boundaries, data ownership, integration patterns |
+| `docs/decisions/` | ADRs — dated records of significant choices and their rationale |
+
+## What does not belong in `docs/`
+
+- Framework/library usage → READMEs and technology-specific rules
+- File paths, scripts, env vars → workspace READMEs and `.cursor/rules/`
+- Inline code comments as a substitute for domain docs
+- Undocumented business rules embedded only in handlers or UI
+
+## Before implementing business logic
+
+1. **Check** — read `docs/README.md` and the relevant product/domain/architecture doc.
+2. **Missing doc?** — write or extend the doc **before** (or in the same task as) the code change.
+3. **Unclear requirement?** — do not guess. Ask the user or propose a doc update for approval.
+4. **Implement** — handlers, schema, and UI must match the documented rules.
+
+## When to update `docs/`
+
+Update in the **same task** whenever you:
+
+- Add, change, or remove a domain entity, field, or relationship
+- Change validation, authorization, pricing, calculations, or workflow rules
+- Introduce or alter a user-facing flow or feature boundary
+- Make an app-level architecture decision (new service, data store, integration, access pattern)
+- Deprecate or replace an existing behavior
+- Resolve ambiguity discovered during implementation
+
+Skip doc updates only for pure refactors that preserve documented behavior, or trivial fixes (typos, formatting).
+
+## ADR workflow
+
+For non-trivial architecture or product decisions, add `docs/decisions/YYYY-MM-DD-short-title.md`:
+
+```markdown
+# Title
+
+## Status
+Accepted | Superseded by …
+
+## Context
+What problem or constraint led to this decision?
+
+## Decision
+What we chose.
+
+## Consequences
+Trade-offs, follow-ups, and what this enables or prevents.
+```
+
+Link the ADR from `docs/architecture/` or `docs/product/` as appropriate.
+
+## Workflow
+
+1. Identify whether the task touches business logic or app architecture.
+2. Read and update the relevant `docs/` files first (or alongside code).
+3. Implement code to match the docs.
+4. If code revealed a gap or wrong assumption, fix the doc in the same turn — do not leave drift.
+5. Update `docs/README.md` index links when adding new doc files.
+
+## Completion criteria
+
+A task is not done if:
+
+- Business logic was added or changed without a corresponding `docs/` update
+- Code contradicts documented rules without an explicit doc revision
+- A significant decision was made only in chat, comments, or code — not in `docs/decisions/` or the relevant doc
+- New domain concepts exist in schema/handlers but not in `docs/domain/`

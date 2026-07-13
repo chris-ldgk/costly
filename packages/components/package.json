@@ -1,0 +1,27 @@
+{
+  "name": "@costly/components",
+  "type": "module",
+  "exports": {
+    ".": "./ui/index.ts",
+    "./components/*": "./ui/components/*.tsx",
+    "./layouts/*": "./ui/layouts/*.tsx",
+    "./tailwind-config": "./ui/tailwind.config.js"
+  },
+  "scripts": {
+    "sync": "echo \"n\" | bunx --bun main-sync sync --all",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "lint": "eslint ."
+  },
+  "devDependencies": {
+    "@subframe/cli": "^1.209.0",
+    "@types/bun": "latest",
+    "@types/react": "^19",
+    "@types/react-dom": "^19"
+  },
+  "peerDependencies": {
+    "react": "^19",
+    "react-dom": "^19",
+    "typescript": "^5",
+    "@subframe/core": "^1.154.0"
+  }
+}
