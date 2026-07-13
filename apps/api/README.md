@@ -105,7 +105,7 @@ Migrations use Drizzle Kit over **direct TCP** to Postgres on the tunnel host â€
 PRODUCTION_DB_PASSWORD=<secret> bun run db:migrate:production
 ```
 
-`scripts/migrate-production.sh` builds `DATABASE_URL` (default host `100.69.229.78`, port `6001`, `sslmode=require`). Override with `PRODUCTION_DB_HOST`, `PRODUCTION_DB_PORT`, `PRODUCTION_DB_SSLMODE`, etc.
+`scripts/migrate-production.sh` builds `DATABASE_URL` (default host `100.69.229.78`, port `6001`, `sslmode=no-verify` for self-signed certs). Override with `PRODUCTION_DB_HOST`, `PRODUCTION_DB_PORT`, `PRODUCTION_DB_SSLMODE`, etc.
 
 **GitHub Actions:** workflow `.github/workflows/migrate-production.yml` joins an **ephemeral Tailscale node** per run (`tailscale/github-action@v4`), then migrates over TCP to `100.69.229.78:6001`. Runs on `ubuntu-latest` â€” the runner does not need to be on Tailscale permanently.
 

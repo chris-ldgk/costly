@@ -123,12 +123,12 @@ Workflow file: `.github/workflows/migrate-production.yml` — runs on `ubuntu-la
 The helper script `apps/api/scripts/migrate-production.sh` builds:
 
 ```
-postgres://postgres:<password>@100.69.229.78:6001/costly-api?sslmode=require
+postgres://postgres:<password>@100.69.229.78:6001/costly-api?sslmode=no-verify
 ```
 
 Override host, port, database, user, or SSL mode with env vars (`PRODUCTION_DB_HOST`, `PRODUCTION_DB_PORT`, `PRODUCTION_DB_NAME`, `PRODUCTION_DB_USER`, `PRODUCTION_DB_SSLMODE`).
 
-**TLS:** Production Postgres uses self-signed certs (required for Hyperdrive). Migrations default to `sslmode=require` (encrypt without CA verification). If Drizzle Kit fails with an SSL error, try `PRODUCTION_DB_SSLMODE=disable` only when Postgres is configured without TLS on that path — production compose enables TLS by default.
+**TLS:** Production Postgres uses self-signed certs (required for Hyperdrive). Migrations default to `sslmode=no-verify` — encrypted connection without CA verification (appropriate for self-signed certs on a private Tailscale path). Override with `PRODUCTION_DB_SSLMODE` if needed.
 
 ### Local / manual run
 
