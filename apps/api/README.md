@@ -61,6 +61,8 @@ Production deploys run through **[Cloudflare Workers Builds](https://developers.
 | `PUBLIC_URL`         | `wrangler.jsonc` `vars`      | API public URL                              |
 | `CORS_ORIGINS`       | `wrangler.jsonc` `vars`      | Allowed frontend origins                    |
 | `BETTER_AUTH_URL`    | `wrangler.jsonc` `vars`      | Frontend URL for auth callbacks             |
+| `API_PUBLIC_URL`     | `wrangler.jsonc` `vars`      | API public URL (trusted origin for auth)    |
+| `COOKIE_DOMAIN`      | `wrangler.jsonc` `vars`      | Shared auth cookie domain                   |
 | `ALLOWED_USERS`      | `wrangler.jsonc` `vars`      | JSON array of two `{ email, name }` objects |
 | `RESEND_FROM_EMAIL`  | `wrangler.jsonc` `vars`      | Verified Resend sender (`Costly <login@domain>`) |
 | `RESEND_API_KEY`     | `.env` / dashboard secret | Resend API key (required in production) |

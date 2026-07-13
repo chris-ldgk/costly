@@ -41,8 +41,20 @@ The `from` address must use a domain verified in the Resend dashboard. Template:
 
 - Cookie-based sessions managed by better-auth.
 - Auth HTTP endpoints live on the API worker at `/api/auth/*`.
-- Frontend proxies `/api/auth/*` so cookies stay on the frontend origin.
+- Frontend proxies `/api/auth/*` so the browser uses the frontend origin for auth requests.
+- Session cookies are shared across frontend and API origins via `crossSubDomainCookies` (see env vars below).
 - Protected routes and server functions require a valid session.
+
+## Cookie configuration
+
+| Setting | Where | Purpose |
+| --- | --- | --- |
+| `BETTER_AUTH_URL` | `wrangler.jsonc` `vars` | Frontend public URL — `baseURL` for better-auth and magic-link callbacks |
+| `API_PUBLIC_URL` | `wrangler.jsonc` `vars` | API public URL — included in `trustedOrigins` |
+| `COOKIE_DOMAIN` | `wrangler.jsonc` `vars` | Shared cookie domain (`localhost` locally, `.stizzle.workers.dev` in production) |
+| `CORS_ORIGINS` | `wrangler.jsonc` `vars` | Frontend origin(s) for CORS and `trustedOrigins` |
+
+The auth client on the frontend uses `VITE_PUBLIC_URL` (same origin) so Set-Cookie responses from the proxied auth handler apply to the frontend hostname. `crossSubDomainCookies` ensures the session cookie is also sent when the API worker handles auth or session checks directly.
 
 ## Authorization
 

@@ -5,6 +5,7 @@ import type { Lib } from "../utils/lib";
 import { authSchema } from "../schema";
 import { parseAllowedUsers } from "./allowed-users";
 import { sendMagicLinkEmail } from "../emails/send-magic-link";
+import { getAuthAdvancedOptions, getTrustedOrigins } from "./options";
 
 export function createAuth(lib: Lib) {
   const { env, db } = lib;
@@ -15,7 +16,8 @@ export function createAuth(lib: Lib) {
   return betterAuth({
     baseURL: env.BETTER_AUTH_URL,
     secret: env.BETTER_AUTH_SECRET,
-    trustedOrigins: env.CORS_ORIGINS,
+    trustedOrigins: getTrustedOrigins(env),
+    advanced: getAuthAdvancedOptions(env),
     database: drizzleAdapter(db, {
       provider: "pg",
       schema: authSchema,

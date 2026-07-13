@@ -7,6 +7,7 @@ export const envSchema = z.object({
     .transform((v) => v.split(",").map((v) => v.trim())),
   BETTER_AUTH_SECRET: z.string().min(32),
   BETTER_AUTH_URL: z.string(),
+  COOKIE_DOMAIN: z.string(),
   ALLOWED_USERS: z.string(),
   RESEND_FROM_EMAIL: z.string().min(3),
   RESEND_API_KEY: z.string().min(1).optional(),

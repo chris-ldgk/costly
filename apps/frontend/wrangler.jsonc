@@ -16,6 +16,8 @@
   ],
   "env": {
     "main": {
+      "workers_dev": true,
+      "preview_urls": false,
       "name": "costly-frontend",
       "services": [
         {

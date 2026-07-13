@@ -5,8 +5,15 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "@better-auth/drizzle-adapter";
 import { magicLink } from "better-auth/plugins";
 import { getScriptEnv } from "../utils/wrangler-vars";
+import { getAuthAdvancedOptions, getTrustedOrigins } from "../auth/options";
+import { envSchema } from "../utils/env";
 
 const scriptEnv = getScriptEnv();
+const env = envSchema.parse({
+  ...scriptEnv,
+  BETTER_AUTH_SECRET:
+    scriptEnv.BETTER_AUTH_SECRET ?? "dev-secret-min-32-characters-long!!",
+});
 
 const pool = new Pool({
   connectionString: scriptEnv.DATABASE_URL,
@@ -14,9 +21,10 @@ const pool = new Pool({
 const db = drizzle({ client: pool });
 
 export const auth = betterAuth({
-  baseURL: scriptEnv.BETTER_AUTH_URL ?? "http://localhost:3000",
-  secret:
-    scriptEnv.BETTER_AUTH_SECRET ?? "dev-secret-min-32-characters-long!!",
+  baseURL: env.BETTER_AUTH_URL,
+  secret: env.BETTER_AUTH_SECRET,
+  trustedOrigins: getTrustedOrigins(env),
+  advanced: getAuthAdvancedOptions(env),
   database: drizzleAdapter(db, {
     provider: "pg",
   }),
