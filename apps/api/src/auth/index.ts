@@ -30,14 +30,15 @@ export function createAuth(lib: Lib) {
           if (!allowedEmails.has(email.toLowerCase())) {
             throw new Error("Email not allowed");
           }
-
+          console.log(`[Costly] Magic link for ${email}: ${url}`);
           if (env.NODE_ENV === "development") {
-            console.log(`[Costly] Magic link for ${email}: ${url}`);
             return;
           }
 
           if (!env.RESEND_API_KEY) {
-            throw new Error("RESEND_API_KEY is required to send magic link emails");
+            throw new Error(
+              "RESEND_API_KEY is required to send magic link emails",
+            );
           }
 
           await sendMagicLinkEmail({
