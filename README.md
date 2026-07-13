@@ -43,7 +43,7 @@ bun install
 
 ```bash
 cd apps/api
-cp .env.example .env   # secrets + DATABASE_URL for local scripts
+cp .env.example .env   # secrets + DATABASE_URL (do not use .dev.vars)
 bun run db:up
 bun run db:migrate
 bun run dev:scheduled   # start API with /__scheduled test endpoint

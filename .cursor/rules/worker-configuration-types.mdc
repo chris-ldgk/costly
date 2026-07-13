@@ -46,7 +46,7 @@ cd apps/frontend && bun run cf-typegen
 
 - Config: `apps/api/wrangler.jsonc`
 - Env schema: `apps/api/src/utils/env.ts`
-- Current bindings: `DB` (Hyperdrive), `COSTLY_DB` (VPC Network → `costly-db` tunnel), `COSTLY_DB_POSTGRES` (VPC Service), `KV`, `BUCKET` (R2)
+- Current bindings: `DB` (Hyperdrive), `KV`, `BUCKET` (R2)
 - `cf-typegen` runs: `wrangler types --env-interface CloudflareBindings`
 
 ### `apps/frontend`

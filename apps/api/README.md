@@ -19,8 +19,8 @@ handlers/purchases.ts  ← shared business logic
 | ---------- | -------------------------------------------------------------------------------------- |
 | Runtime    | Cloudflare Workers                                                                     |
 | HTTP       | Hono (auth routes + CORS)                                                              |
-| Auth       | better-auth + Drizzle adapter, magic-link plugin                                       |
-| Database   | Drizzle ORM + PostgreSQL via Hyperdrive (production: Workers VPC → `costly-db` tunnel) |
+| Auth       | better-auth + Drizzle adapter, magic-link plugin; emails via Resend + React Email |
+| Database   | Drizzle ORM + PostgreSQL via Hyperdrive (`DB` binding) |
 | Validation | Zod                                                                                    |
 
 ## Layout
@@ -29,6 +29,7 @@ handlers/purchases.ts  ← shared business logic
 src/
 ├── index.ts          # fetch handler + FrontendEntrypoint RPC
 ├── auth/             # better-auth config, allowed-users helper
+├── emails/           # React Email templates + Resend send helpers
 ├── handlers/         # Purchase business logic
 ├── routers/          # Hono routes (auth + CORS)
 ├── schema/           # Auth tables (CLI-generated) + purchases/settlements
@@ -55,15 +56,17 @@ Production deploys run through **[Cloudflare Workers Builds](https://developers.
 
 | Variable | Where | Purpose |
 | --- | --- | --- |
-| `BETTER_AUTH_SECRET` | `.dev.vars` (from `.dev.vars.example`) | Auth signing secret (Wrangler dev) |
+| `BETTER_AUTH_SECRET` | `.env` (from `.env.example`) | Auth signing secret (Wrangler dev) |
 | `DATABASE_URL` | `.env` (from `.env.example`) | Drizzle Kit migrations/seed only |
 | `PUBLIC_URL`         | `wrangler.jsonc` `vars`      | API public URL                              |
 | `CORS_ORIGINS`       | `wrangler.jsonc` `vars`      | Allowed frontend origins                    |
 | `BETTER_AUTH_URL`    | `wrangler.jsonc` `vars`      | Frontend URL for auth callbacks             |
 | `ALLOWED_USERS`      | `wrangler.jsonc` `vars`      | JSON array of two `{ email, name }` objects |
+| `RESEND_FROM_EMAIL`  | `wrangler.jsonc` `vars`      | Verified Resend sender (`Costly <login@domain>`) |
+| `RESEND_API_KEY`     | `.env` / dashboard secret | Resend API key (required in production) |
 | `NODE_ENV`           | `wrangler.jsonc` `vars`      | `development` / `production`                |
 
-Local dev: copy `.dev.vars.example` → `.dev.vars` for Worker secrets; copy `.env.example` → `.env` for `DATABASE_URL` (Drizzle Kit). Public vars come from `wrangler.jsonc`.
+Local dev: copy `.env.example` → `.env` for secrets and `DATABASE_URL`. Public vars come from `wrangler.jsonc`. **Do not use `.dev.vars`** — Wrangler loads `.env` when no `.dev.vars` file exists.
 
 Both workers have `workers_dev: true` and `preview_urls: false`. See [`docs/architecture/deployment.md`](../../docs/architecture/deployment.md) for Workers Builds and preview-build settings.
 
@@ -81,9 +84,9 @@ bunx @better-auth/cli generate --config src/scripts/auth.cli.ts --output src/sch
 bun run db:generate && bun run db:migrate
 ```
 
-## Production database (Workers VPC)
+## Production database (Hyperdrive)
 
-Production Postgres is private and reached through the `costly-db` Cloudflare Tunnel. See [`docs/architecture/database-connectivity.md`](../../docs/architecture/database-connectivity.md).
+Production Postgres is private and reached through Hyperdrive. The tunnel and VPC service are account-level resources Hyperdrive uses — not Worker bindings. See [`docs/architecture/database-connectivity.md`](../../docs/architecture/database-connectivity.md).
 
 **On the tunnel host** (Postgres must use TLS for Hyperdrive):
 
@@ -101,7 +104,7 @@ The compose file generates self-signed TLS certs on first start (`postgres-ssl-i
 PRODUCTION_DB_PASSWORD=<secret> bun run hyperdrive:setup
 ```
 
-`wrangler.jsonc` `env.main` binds `COSTLY_DB` (VPC Network), `COSTLY_DB_POSTGRES` (VPC Service → `127.0.0.1:6001`), and `DB` (Hyperdrive). Local dev uses top-level `DB` only, with `localConnectionString` pointing at Docker Postgres — VPC bindings are production-only. Production deploys must use `--env main` (see [`docs/architecture/deployment.md`](../../docs/architecture/deployment.md)).
+`wrangler.jsonc` binds `DB` (Hyperdrive) only — top-level for local dev (`localConnectionString`), `env.main` for production. Production deploys use `--env main` (see [`docs/architecture/deployment.md`](../../docs/architecture/deployment.md)).
 
 ### Production migrations
 

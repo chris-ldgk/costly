@@ -8,6 +8,8 @@ export const envSchema = z.object({
   BETTER_AUTH_SECRET: z.string().min(32),
   BETTER_AUTH_URL: z.string(),
   ALLOWED_USERS: z.string(),
+  RESEND_FROM_EMAIL: z.string().min(3),
+  RESEND_API_KEY: z.string().min(1).optional(),
   NODE_ENV: z
     .enum(["development", "production", "test"])
     .default("development"),

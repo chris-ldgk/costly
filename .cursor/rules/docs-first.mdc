@@ -45,6 +45,8 @@ Register new MCP servers in `.cursor/mcp.json`. Update `.cursor/rules/documentat
 | Cloudflare | `cloudflare-docs`, `cloudflare` | `cloudflare-docs.mdc` | `cloudflare-docs` |
 | Hono | `hono` | `hono-docs.mdc` | `hono-docs` |
 | Subframe | `subframe`, `subframe-docs` | — | `install`, `design`, `develop` |
+| React Email | — | `react-email-docs.mdc` | `react-email-docs` |
+| Resend | — | `resend-docs.mdc` | `resend-docs` |
 
 ## Step 2: Search docs for the specific feature
 

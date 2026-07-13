@@ -45,6 +45,8 @@ Update the README closest to the change. If a change affects multiple workspaces
 | `.cursor/rules/drizzle-docs.mdc` | Drizzle MCP setup or doc-search workflow |
 | `.cursor/rules/cloudflare-docs.mdc` | Cloudflare MCP setup or doc-search workflow |
 | `.cursor/rules/hono-docs.mdc` | Hono MCP setup or doc-search workflow |
+| `.cursor/rules/react-email-docs.mdc` | React Email doc-search workflow |
+| `.cursor/rules/resend-docs.mdc` | Resend doc-search workflow |
 | `.cursor/rules/business-logic-docs.mdc` | Business-logic doc workflow, `docs/` structure, ADR conventions |
 
 Add a new rule file when introducing a new cross-cutting convention that agents should always follow.

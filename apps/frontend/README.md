@@ -42,11 +42,13 @@ Production deploys run through **[Cloudflare Workers Builds](https://developers.
 
 ## Environment
 
-Copy `.dev.vars.example` → `.dev.vars` for local Worker / Vite dev bindings:
+Copy `.env.example` → `.env` for local dev bindings:
 
 | Variable | Purpose |
 | --- | --- |
 | `VITE_PUBLIC_URL` | App URL |
 | `VITE_API_URL` | API URL (auth client baseURL, HTTP fallback client) |
+
+Do not use `.dev.vars` — Vite and Wrangler load `.env` for local development.
 
 `workers_dev: true` and `preview_urls: false` in `wrangler.jsonc`. See [`docs/architecture/deployment.md`](../../docs/architecture/deployment.md) for Workers Builds settings.

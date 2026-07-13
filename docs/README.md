@@ -42,7 +42,7 @@ For technical setup (commands, bindings, file layout), see the root [README](../
 
 - [Overview](./architecture/overview.md) — how product architecture relates to the monorepo
 - [Deployment](./architecture/deployment.md) — Workers Builds CI/CD for `costly-api` and `costly-frontend`
-- [Database connectivity](./architecture/database-connectivity.md) — production Postgres via Workers VPC, tunnel, and Hyperdrive
+- [Database connectivity](./architecture/database-connectivity.md) — production Postgres via Hyperdrive, tunnel, and migration CI
 
 ### Decisions
 

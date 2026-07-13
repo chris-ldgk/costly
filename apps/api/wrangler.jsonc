@@ -12,6 +12,7 @@
     "BETTER_AUTH_URL": "http://localhost:8787",
     "ALLOWED_USERS": "[{\"email\":\"ckolb@protonmail.com\",\"name\":\"Chris\"},{\"email\":\"jacquelinesegeth12@gmail.com\",\"name\":\"Jac\"}]",
     "NODE_ENV": "development",
+    "RESEND_FROM_EMAIL": "Costly <mail@costly.kolbgrafik.de>",
   },
   "hyperdrive": [
     {
@@ -28,6 +29,7 @@
         "BETTER_AUTH_URL": "https://costly-api.stizzle.workers.dev",
         "ALLOWED_USERS": "[{\"email\":\"ckolb@protonmail.com\",\"name\":\"Chris\"},{\"email\":\"jacquelinesegeth12@gmail.com\",\"name\":\"Jac\"}]",
         "NODE_ENV": "production",
+        "RESEND_FROM_EMAIL": "Costly <mail@costly.kolbgrafik.de>",
       },
       "hyperdrive": [
         {

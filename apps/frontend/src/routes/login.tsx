@@ -2,6 +2,7 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useState } from "react";
 import { Button, TextField } from "@costly/components";
 import { authClient } from "#/lib/auth-client";
+import { publicEnv } from "#/utils/env.ts";
 
 export const Route = createFileRoute("/login")({
   beforeLoad: async () => {
@@ -30,7 +31,7 @@ function LoginPage() {
 
     const { error: signInError } = await authClient.signIn.magicLink({
       email,
-      callbackURL: "/",
+      callbackURL: new URL(publicEnv.VITE_PUBLIC_URL).toString(),
     });
 
     if (signInError) {
@@ -71,7 +72,6 @@ function LoginPage() {
                 placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="min-h-11"
                 required
               />
             </TextField>
@@ -86,7 +86,7 @@ function LoginPage() {
               type="submit"
               variant="brand-primary"
               size="large"
-              className="min-h-11 w-full"
+              className="w-full"
               disabled={status === "loading"}
             >
               {status === "loading" ? "Sending…" : "Send magic link"}

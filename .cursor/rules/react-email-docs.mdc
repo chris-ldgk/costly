@@ -1,0 +1,44 @@
+---
+description: How to search React Email documentation for templates and components
+alwaysApply: false
+---
+
+# React Email Documentation
+
+Use current React Email docs — do not rely on training data for API details.
+
+## Priority 1: Context7 MCP
+
+Use Context7 `query-docs` with library ID `/resend/react-email`.
+
+Example queries:
+
+- "Button Container Html Head Preview Text email template"
+- "render plainText Tailwind send with Resend"
+- "installation components import from react-email"
+
+Workflow: search with the user's specific template or component need, then fetch the top 1–2 pages.
+
+## Priority 2: Direct sources (shell fallback)
+
+```bash
+# Docs site
+curl -s https://react.email/docs
+
+# GitHub skill references (component list, sending patterns)
+curl -s https://raw.githubusercontent.com/resend/react-email/canary/skills/react-email/references/COMPONENTS.md
+curl -s https://raw.githubusercontent.com/resend/react-email/canary/skills/react-email/references/SENDING.md
+```
+
+## Conventions in this repo
+
+- Email templates live in `apps/api/src/emails/` as `.tsx` files.
+- Import components from `react-email` (`Html`, `Head`, `Body`, `Container`, `Text`, `Button`, `Preview`, etc.).
+- Templates are rendered and sent via Resend from `apps/api/src/emails/` send helpers — see `resend-docs.mdc`.
+- Use `react-jsx` (base `tsconfig`) for email templates; API `tsconfig` includes `src/**/*.tsx`.
+
+## Notes
+
+- React Email has no official docs MCP in this repo; Context7 is the primary path.
+- Prefer table-based layouts and inline styles for email client compatibility.
+- Always include `<Preview>` as the first child of `<Body>` for inbox preview text.

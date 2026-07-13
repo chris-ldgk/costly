@@ -1,0 +1,44 @@
+---
+description: How to search Resend API documentation for sending transactional email
+alwaysApply: false
+---
+
+# Resend Documentation
+
+Use current Resend docs — do not rely on training data for API details.
+
+## Priority 1: Context7 MCP
+
+Use Context7 `query-docs` with library ID `/resend/resend-node`.
+
+Example queries:
+
+- "send email react component Node.js"
+- "Resend API key authentication error handling"
+- "from to subject html text batch send"
+
+Workflow: search with the user's specific sending task, then confirm API shape before implementing.
+
+## Priority 2: Direct sources (shell fallback)
+
+```bash
+# Node SDK readme and API reference on GitHub
+curl -s https://raw.githubusercontent.com/resend/resend-node/canary/readme.md
+curl -s https://raw.githubusercontent.com/resend/resend-node/canary/_autodocs/api-reference/emails.md
+```
+
+Official docs: https://resend.com/docs
+
+## Conventions in this repo
+
+- Resend is used only in `apps/api` for magic-link auth emails.
+- `RESEND_API_KEY` is a Worker secret (`.env` locally, dashboard in production).
+- `RESEND_FROM_EMAIL` is a Worker var (verified sender, e.g. `Costly <login@yourdomain.com>`).
+- Send helpers live in `apps/api/src/emails/`; pass React Email components via the `react` field on `resend.emails.send`.
+- In development (`NODE_ENV=development`), magic links are logged to the console — Resend is not called.
+
+## Notes
+
+- Resend has no official docs MCP in this repo; Context7 is the primary path.
+- The `from` address must use a domain verified in the Resend dashboard.
+- Use `react` prop on `emails.send` for React Email templates (Resend renders server-side).

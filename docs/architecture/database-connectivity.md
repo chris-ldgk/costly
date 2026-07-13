@@ -2,17 +2,17 @@
 
 ## Overview
 
-Production PostgreSQL is private — not exposed to the public internet. The API Worker reaches it through **Workers VPC** and **Hyperdrive**.
+Production PostgreSQL is private — not exposed to the public internet. The API Worker reaches it through a single **Hyperdrive** binding (`DB`). Hyperdrive handles connection pooling and routes to Postgres through Cloudflare's private connectivity layer (tunnel + VPC service configured in the account — not as Worker bindings).
 
 ```
 costly-api Worker
-  → Hyperdrive (connection pooling)
-    → VPC Service (costly-db-postgres, TCP :6001)
-      → Cloudflare Tunnel (costly-db)
+  → Hyperdrive (`DB` binding)
+    → Hyperdrive config (`costly-db`) — routes via private connectivity
+      → Cloudflare Tunnel (`costly-db`)
         → PostgreSQL on the tunnel host (Docker, host port 6001)
 ```
 
-Local development uses `localConnectionString` on the Hyperdrive binding to talk to Docker Postgres instead of the tunnel.
+Local development uses `localConnectionString` on the top-level Hyperdrive binding to talk to Docker Postgres instead of the production Hyperdrive config.
 
 ## Cloudflare resources
 
@@ -20,7 +20,7 @@ Local development uses `localConnectionString` on the Hyperdrive binding to talk
 | --- | --- | --- |
 | Account | Personal - Chris (`4c1f658199b03cc5095e7a3c6563457d`) | Hosts Workers, tunnel, VPC, Hyperdrive |
 | Tunnel | `costly-db` (`c64a2817-e14d-40d6-842c-2554b45bb79b`) | Outbound connector from the Postgres host |
-| VPC Service | `costly-db-postgres` (`019f5cb7-5cf7-7313-a044-5bd5bde09191`) | TCP route to `127.0.0.1:6001` through the tunnel |
+| VPC Service | `costly-db-postgres` (`019f5cb7-5cf7-7313-a044-5bd5bde09191`) | Private route Hyperdrive uses to reach `127.0.0.1:6001` (not a Worker binding) |
 | Hyperdrive | `costly-db` (`bd79b0e6deac49488e97473faa5d76b3`) | Backs the Worker `DB` binding |
 
 ## Production Postgres (tunnel host)
@@ -51,13 +51,13 @@ docker compose --env-file .env.production -f docker-compose.production.yml up -d
 
 ## Worker bindings (`apps/api/wrangler.jsonc`)
 
-Wrangler does not inherit bindings into named environments. Production bindings live under `env.main`; local dev uses top-level config.
+The Worker declares **only** the Hyperdrive binding. VPC network and service resources exist in the account for Hyperdrive's backend routing — they are not bound to the Worker.
 
-| Binding | Type | Target | Where |
+Wrangler does not inherit bindings into named environments. Production Hyperdrive lives under `env.main`; local dev uses top-level config with `localConnectionString`.
+
+| Binding | Type | Where | Notes |
 | --- | --- | --- | --- |
-| `COSTLY_DB` | VPC Network | `costly-db` tunnel | `env.main` only |
-| `COSTLY_DB_POSTGRES` | VPC Service | Registered Postgres service | `env.main` only |
-| `DB` | Hyperdrive | Pooled Postgres access for Drizzle | `env.main` (production) and top-level (local, with `localConnectionString`) |
+| `DB` | Hyperdrive | Top-level (local) and `env.main` (production) | Local includes `localConnectionString`; production uses Hyperdrive config ID only |
 
 ## Hyperdrive setup
 
@@ -72,7 +72,7 @@ This creates the `costly-db` Hyperdrive config, updates `wrangler.jsonc`, and ru
 
 ## Production migrations (GitHub Actions)
 
-Schema migrations use **Drizzle Kit** with a direct TCP connection to Postgres on the tunnel host. They do **not** go through Hyperdrive or Workers VPC — only the API Worker uses those at runtime.
+Schema migrations use **Drizzle Kit** with a direct TCP connection to Postgres on the tunnel host. They do **not** go through Hyperdrive — only the API Worker uses Hyperdrive at runtime.
 
 ```
 GitHub Actions (ubuntu-latest)
@@ -144,10 +144,7 @@ PRODUCTION_DB_PASSWORD=<secret> bun run db:migrate:production
 ## Invariants
 
 - Only `apps/api` connects to the database.
-- Production never uses a public Postgres hostname; traffic stays on Workers VPC + Hyperdrive.
-- Postgres must speak TLS for Hyperdrive (self-signed certs are fine; VPC service uses `cert_verification_mode: disabled`).
+- The Worker binds **Hyperdrive only** — no VPC network or VPC service bindings in `wrangler.jsonc`.
+- Production never uses a public Postgres hostname; Hyperdrive routes over private connectivity.
+- Postgres must speak TLS for Hyperdrive (self-signed certs are fine).
 - Tunnel connector (`cloudflared`) must run on a host that can reach `127.0.0.1:6001`.
-
-## Workers Builds deploy failures (VPC)
-
-If `costly-api` Workers Builds fails with error **10196** (`credentials are not authorized for the requested VPC resource`), the build API token needs Workers VPC permissions. Add **Connectivity Directory Read**, **Connectivity Directory Bind**, and **Connectivity Directory Admin** (plus **Hyperdrive Edit**) to the token — see [deployment.md](./deployment.md#workers-builds-api-token).

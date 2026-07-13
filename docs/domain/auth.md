@@ -23,8 +23,19 @@ Users are defined in the `ALLOWED_USERS` environment variable:
 
 1. User submits email on `/login`.
 2. Server validates email is in `ALLOWED_USERS`.
-3. If allowed, better-auth sends a magic link (email in prod, console log in dev).
+3. If allowed, better-auth generates a magic link:
+   - **Development** (`NODE_ENV=development`): link is logged to the API console.
+   - **Production**: link is sent via [Resend](https://resend.com) using a [React Email](https://react.email) template (`apps/api/src/emails/magic-link.tsx`).
 4. User clicks link → session cookie set → redirect to dashboard.
+
+## Email delivery
+
+| Setting | Where | Purpose |
+| --- | --- | --- |
+| `RESEND_API_KEY` | Worker secret (`.env` locally, dashboard in production) | Resend API authentication |
+| `RESEND_FROM_EMAIL` | `wrangler.jsonc` `vars` | Verified sender address (e.g. `Costly <login@yourdomain.com>`) |
+
+The `from` address must use a domain verified in the Resend dashboard. Template: `MagicLinkEmail` with sign-in button and plain-text fallback link.
 
 ## Session
 

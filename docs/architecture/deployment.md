@@ -46,7 +46,7 @@ Configure builds separately for each Worker. Suggested settings for this monorep
 
 No compile step — Wrangler bundles TypeScript at deploy time. Runtime secrets (`BETTER_AUTH_SECRET`) and production `vars` are set in the dashboard (**Settings → Variables & Secrets**), not in git.
 
-**API token:** The default Workers Builds token does not include Workers VPC permissions. For `costly-api`, the build token must be able to bind `env.main` VPC and Hyperdrive resources — see [Workers Builds API token](#workers-builds-api-token) below.
+**API token:** If `costly-api` deploy fails binding Hyperdrive, add **Hyperdrive Edit** to the Workers Builds API token — see [Workers Builds API token](#workers-builds-api-token) below.
 
 ### `costly-frontend`
 
@@ -74,55 +74,33 @@ See [database connectivity](./database-connectivity.md) for migration CI setup.
 
 Wrangler does **not** inherit bindings into named environments — each `env.<name>` block must declare its own bindings. Costly uses top-level config for local `wrangler dev` and `env.main` for production Workers Builds deploys (`--env main`).
 
+**Local secrets:** use `.env` only (copy from `.env.example`). Do **not** create `.dev.vars` — if present, Wrangler prefers it over `.env`.
+
 ### `costly-api` bindings
 
 | Binding | Local (top-level) | Production (`env.main`) |
 | --- | --- | --- |
-| `DB` (Hyperdrive) | Yes — includes `localConnectionString` for Docker Postgres | Yes — Hyperdrive ID only (no `localConnectionString`) |
-| `COSTLY_DB` (VPC Network) | No | Yes — `costly-db` tunnel |
-| `COSTLY_DB_POSTGRES` (VPC Service) | No | Yes — Postgres service through tunnel |
+| `DB` (Hyperdrive) | Yes — includes `localConnectionString` for Docker Postgres | Yes — Hyperdrive config ID only (no `localConnectionString`) |
+
+The Worker does **not** bind VPC network or VPC service resources. Tunnel and VPC service exist in the account for Hyperdrive's backend routing — see [database connectivity](./database-connectivity.md).
 
 ### Other config
 
 | Concern | Local | Production |
 | --- | --- | --- |
-| Worker secrets | `apps/*/.dev.vars` | Cloudflare dashboard Variables & Secrets |
+| Worker secrets | `apps/*/.env` | Cloudflare dashboard Variables & Secrets |
 | Public env vars | `wrangler.jsonc` top-level `vars` (localhost) | `wrangler.jsonc` `env.main.vars` or dashboard |
 | Deploy | Not from this repo — push to Git | Workers Builds on merge to `main` (`--env main`) |
 
 ## Workers Builds API token
 
-Workers Builds deploys with a **user API token** (auto-created or selected under **Settings → Build → API token**). The auto-generated token includes Workers Scripts, KV, R2, and routes — but **not** Workers VPC or Hyperdrive.
+Workers Builds deploys with a **user API token** (auto-created or selected under **Settings → Build → API token**). The auto-generated token includes Workers Scripts, KV, R2, and routes.
 
-`costly-api` production deploys (`--env main`) bind Hyperdrive plus VPC network/service resources. If the build token lacks VPC access, deploy fails with:
+`costly-api` production deploys (`--env main`) bind the Hyperdrive config. If the build token lacks Hyperdrive access, deploy may fail when attaching the `DB` binding. Add **Hyperdrive → Edit** on the build token under [My Profile → API Tokens](https://dash.cloudflare.com/profile/api-tokens), then retry the build.
 
-```
-Workers VPC binding configuration failed because your credentials are not authorized
-for the requested VPC resource. [code: 10196]
-```
+`costly-frontend` has no Hyperdrive binding — the default build token is usually sufficient.
 
-### Fix (one-time)
-
-1. Open [My Profile → API Tokens](https://dash.cloudflare.com/profile/api-tokens).
-2. Find the token used by Workers Builds (often named like `costly-api build token`).
-3. **Edit** the token and add these **Account** permissions for your account (`Personal - Chris`):
-
-| Permission | Access | Why |
-| --- | --- | --- |
-| Connectivity Directory Read | Read | List/view VPC tunnels and services |
-| Connectivity Directory Bind | Edit | Bind `COSTLY_DB_POSTGRES` VPC Service |
-| Connectivity Directory Admin | Edit | Bind `COSTLY_DB` VPC Network (tunnel) |
-| Hyperdrive | Edit | Bind production `DB` Hyperdrive config |
-
-Keep existing Workers Scripts (Edit), KV/R2 (Edit), and Workers Routes permissions.
-
-4. Save the token.
-5. In **Workers & Pages → costly-api → Settings → Build**, confirm the same token is selected (or choose a custom token you created with the permissions above).
-6. **Retry** the failed build.
-
-`costly-frontend` has no VPC bindings — the default build token is usually sufficient.
-
-See [Workers VPC troubleshooting](https://developers.cloudflare.com/workers-vpc/reference/troubleshooting/#permission-errors) and [Workers Builds configuration](https://developers.cloudflare.com/workers/ci-cd/builds/configuration/#api-token).
+See [Workers Builds configuration](https://developers.cloudflare.com/workers/ci-cd/builds/configuration/#api-token).
 
 ## Related docs
 
