@@ -16,7 +16,7 @@
   ],
   "env": {
     "main": {
-      "preview_urls": false,
+      "name": "costly-frontend",
       "services": [
         {
           "binding": "API",
@@ -24,10 +24,6 @@
           "entrypoint": "FrontendEntrypoint",
         },
       ],
-      "vars": {
-        "VITE_PUBLIC_URL": "https://costly-frontend.stizzle.workers.dev",
-        "VITE_API_URL": "https://costly-api.stizzle.workers.dev",
-      },
     },
   },
 }
