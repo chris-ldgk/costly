@@ -15,13 +15,13 @@ handlers/purchases.ts  ← shared business logic
 
 ## Stack
 
-| Concern | Technology |
-| --- | --- |
-| Runtime | Cloudflare Workers |
-| HTTP | Hono (auth routes + CORS) |
-| Auth | better-auth + Drizzle adapter, magic-link plugin |
-| Database | Drizzle ORM + PostgreSQL via Hyperdrive (production: Workers VPC → `costly-db` tunnel) |
-| Validation | Zod |
+| Concern    | Technology                                                                             |
+| ---------- | -------------------------------------------------------------------------------------- |
+| Runtime    | Cloudflare Workers                                                                     |
+| HTTP       | Hono (auth routes + CORS)                                                              |
+| Auth       | better-auth + Drizzle adapter, magic-link plugin                                       |
+| Database   | Drizzle ORM + PostgreSQL via Hyperdrive (production: Workers VPC → `costly-db` tunnel) |
+| Validation | Zod                                                                                    |
 
 ## Layout
 
@@ -49,22 +49,23 @@ bun run cf-typegen   # Regenerate CloudflareBindings
 
 ## Environment
 
-| Variable | Where | Purpose |
-| --- | --- | --- |
-| `SECRET_VALUE` | `.env` (from `.env.example`) | App secret |
-| `BETTER_AUTH_SECRET` | `.env` (from `.env.example`) | Auth signing secret |
-| `DATABASE_URL` | `.env` (from `.env.example`) | Drizzle Kit migrations/seed only |
-| `PUBLIC_URL` | `wrangler.jsonc` `vars` | API public URL |
-| `CORS_ORIGINS` | `wrangler.jsonc` `vars` | Allowed frontend origins |
-| `BETTER_AUTH_URL` | `wrangler.jsonc` `vars` | Frontend URL for auth callbacks |
-| `ALLOWED_USERS` | `wrangler.jsonc` `vars` | JSON array of two `{ email, name }` objects |
-| `NODE_ENV` | `wrangler.jsonc` `vars` | `development` / `production` |
+| Variable             | Where                        | Purpose                                     |
+| -------------------- | ---------------------------- | ------------------------------------------- |
+| `SECRET_VALUE`       | `.env` (from `.env.example`) | App secret                                  |
+| `BETTER_AUTH_SECRET` | `.env` (from `.env.example`) | Auth signing secret                         |
+| `DATABASE_URL`       | `.env` (from `.env.example`) | Drizzle Kit migrations/seed only            |
+| `PUBLIC_URL`         | `wrangler.jsonc` `vars`      | API public URL                              |
+| `CORS_ORIGINS`       | `wrangler.jsonc` `vars`      | Allowed frontend origins                    |
+| `BETTER_AUTH_URL`    | `wrangler.jsonc` `vars`      | Frontend URL for auth callbacks             |
+| `ALLOWED_USERS`      | `wrangler.jsonc` `vars`      | JSON array of two `{ email, name }` objects |
+| `NODE_ENV`           | `wrangler.jsonc` `vars`      | `development` / `production`                |
 
 Local dev: copy `.env.example` → `.env` for secrets. Wrangler loads `.env` when no `.dev.vars` file exists. Public vars come from `wrangler.jsonc`.
 
 User accounts are seeded automatically by the scheduled Worker handler (`handlers/seed-users.ts`, cron `0 * * * *`). It reads `ALLOWED_USERS` from Worker env and upserts missing users.
 
 Local testing:
+
 1. `bun run dev:scheduled` — starts dev server with the `/__scheduled` test endpoint
 2. `bun run scheduled:run` — triggers the seed handler (server must be running; set `WRANGLER_PORT` if not 8787)
 

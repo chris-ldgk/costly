@@ -10,11 +10,11 @@ TanStack Start **Costly** app — mobile-first PWA for tracking shared purchases
 
 ## Routes
 
-| Path | Description |
-| --- | --- |
-| `/login` | Magic-link sign in |
-| `/` | Dashboard — balance, purchase list, settle all |
-| `/purchases/new` | Add a new purchase |
+| Path             | Description                                    |
+| ---------------- | ---------------------------------------------- |
+| `/login`         | Magic-link sign in                             |
+| `/`              | Dashboard — balance, purchase list, settle all |
+| `/purchases/new` | Add a new purchase                             |
 
 ## Layout
 
@@ -40,8 +40,8 @@ bun run build            # Production build (includes service worker)
 
 Copy `.env.example` → `.env` for both secrets and public vars:
 
-| Variable | Purpose |
-| --- | --- |
-| `SECRET_VALUE` | Server secret |
+| Variable          | Purpose                       |
+| ----------------- | ----------------------------- |
+| `SECRET_VALUE`    | Server secret                 |
 | `VITE_PUBLIC_URL` | App URL (auth client baseURL) |
-| `VITE_API_URL` | API URL reference |
+| `VITE_API_URL`    | API URL reference             |

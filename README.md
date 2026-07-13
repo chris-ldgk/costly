@@ -16,13 +16,13 @@ docs/           # Product and domain documentation
 
 ## Stack
 
-| Layer | Technologies |
-| --- | --- |
-| Monorepo | Bun workspaces, TypeScript, ESLint |
-| Runtime | Cloudflare Workers |
-| API | Hono, Drizzle ORM, better-auth (magic link), PostgreSQL via Hyperdrive |
+| Layer    | Technologies                                                                       |
+| -------- | ---------------------------------------------------------------------------------- |
+| Monorepo | Bun workspaces, TypeScript, ESLint                                                 |
+| Runtime  | Cloudflare Workers                                                                 |
+| API      | Hono, Drizzle ORM, better-auth (magic link), PostgreSQL via Hyperdrive             |
 | Frontend | TanStack Start/Router/Query/Form, React 19, PWA (vite-plugin-pwa), Tailwind CSS v3 |
-| UI | `@costly/components` (Subframe) |
+| UI       | `@costly/components` (Subframe)                                                    |
 
 ## Core principles
 

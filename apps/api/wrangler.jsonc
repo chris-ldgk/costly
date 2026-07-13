@@ -32,6 +32,16 @@
       "localConnectionString": "postgres://postgres:postgres@localhost:5432/costly-api",
     },
   ],
+  "env": {
+    "main": {
+      "vars": {
+        "CORS_ORIGINS": "https://costly.stizzle.workers.dev",
+        "BETTER_AUTH_URL": "https://api.costly.stizzle.workers.dev",
+        "ALLOWED_USERS": "[{\"email\":\"ckolb@protonmail.com\",\"name\":\"Chris\"},{\"email\":\"jacquelinesegeth12@gmail.com\",\"name\":\"Jac\"}]",
+        "NODE_ENV": "production",
+      },
+    },
+  },
   "observability": {
     "enabled": true,
     "head_sampling_rate": 1,
