@@ -6,7 +6,6 @@
     "dev": "wrangler dev",
     "dev:scheduled": "wrangler dev --test-scheduled",
     "scheduled:run": "curl -sf \"http://127.0.0.1:${WRANGLER_PORT:-8787}/__scheduled\"",
-    "deploy": "wrangler deploy --minify",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "lint": "eslint .",
     "cf-typegen": "wrangler types --env-interface CloudflareBindings",

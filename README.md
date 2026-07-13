@@ -62,6 +62,10 @@ bun run dev
 
 Open http://localhost:3000, sign in with a seeded email, and check the API console for the magic link in development.
 
+## Deployment
+
+Workers are deployed through **[Cloudflare Workers Builds](https://developers.cloudflare.com/workers/ci-cd/builds/)** when changes merge to `main` — not via `package.json` deploy scripts. Preview builds are disabled (`preview_urls: false`; non-production branch builds off in the dashboard). See [`docs/architecture/deployment.md`](./docs/architecture/deployment.md) for per-Worker build settings (`costly-api`, `costly-frontend`).
+
 ### Checks
 
 ```bash

@@ -1,6 +1,9 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "costly-frontend",
+  "account_id": "4c1f658199b03cc5095e7a3c6563457d",
+  "workers_dev": true,
+  "preview_urls": false,
   "compatibility_date": "2025-09-02",
   "compatibility_flags": ["nodejs_compat"],
   "main": "@tanstack/react-start/server-entry",
@@ -11,4 +14,20 @@
       "entrypoint": "FrontendEntrypoint",
     },
   ],
+  "env": {
+    "main": {
+      "preview_urls": false,
+      "services": [
+        {
+          "binding": "API",
+          "service": "costly-api",
+          "entrypoint": "FrontendEntrypoint",
+        },
+      ],
+      "vars": {
+        "VITE_PUBLIC_URL": "https://costly-frontend.stizzle.workers.dev",
+        "VITE_API_URL": "https://costly-api.stizzle.workers.dev",
+      },
+    },
+  },
 }

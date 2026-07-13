@@ -51,11 +51,13 @@ docker compose --env-file .env.production -f docker-compose.production.yml up -d
 
 ## Worker bindings (`apps/api/wrangler.jsonc`)
 
-| Binding | Type | Target |
-| --- | --- | --- |
-| `COSTLY_DB` | VPC Network | `costly-db` tunnel |
-| `COSTLY_DB_POSTGRES` | VPC Service | Registered Postgres service |
-| `DB` | Hyperdrive | Pooled Postgres access for Drizzle |
+Wrangler does not inherit bindings into named environments. Production bindings live under `env.main`; local dev uses top-level config.
+
+| Binding | Type | Target | Where |
+| --- | --- | --- | --- |
+| `COSTLY_DB` | VPC Network | `costly-db` tunnel | `env.main` only |
+| `COSTLY_DB_POSTGRES` | VPC Service | Registered Postgres service | `env.main` only |
+| `DB` | Hyperdrive | Pooled Postgres access for Drizzle | `env.main` (production) and top-level (local, with `localConnectionString`) |
 
 ## Hyperdrive setup
 

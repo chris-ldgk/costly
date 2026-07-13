@@ -13,7 +13,6 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "deploy": "bun run build && wrangler deploy",
     "cf-typegen": "wrangler types -c ./wrangler.jsonc -c ../api/wrangler.jsonc  --env-interface CloudflareBindings"
   },
   "dependencies": {

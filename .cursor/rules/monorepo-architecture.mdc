@@ -84,6 +84,10 @@ packages/components/
 
 **Import in frontend:** `import { Button, TextField } from "@costly/components"`.
 
+## Deployment
+
+Workers deploy through **Cloudflare Workers Builds** (Git-connected CI in the dashboard), not `package.json` deploy scripts. Each app (`costly-api`, `costly-frontend`) has its own Worker build with root directory `apps/api` or `apps/frontend`. See [`docs/architecture/deployment.md`](../../docs/architecture/deployment.md).
+
 ## Core Principles
 
 ### 1. Database and external services live in the API app only

@@ -47,20 +47,25 @@ bun run dev:scheduled  # Wrangler dev + run seed cron once on startup
 bun run cf-typegen   # Regenerate CloudflareBindings
 ```
 
+## Deployment
+
+Production deploys run through **[Cloudflare Workers Builds](https://developers.cloudflare.com/workers/ci-cd/builds/)** when changes merge to `main`. There is no `deploy` script in this workspace — configure build settings in the dashboard for the `costly-api` Worker. See [`docs/architecture/deployment.md`](../../docs/architecture/deployment.md).
+
 ## Environment
 
-| Variable             | Where                        | Purpose                                     |
-| -------------------- | ---------------------------- | ------------------------------------------- |
-| `SECRET_VALUE`       | `.env` (from `.env.example`) | App secret                                  |
-| `BETTER_AUTH_SECRET` | `.env` (from `.env.example`) | Auth signing secret                         |
-| `DATABASE_URL`       | `.env` (from `.env.example`) | Drizzle Kit migrations/seed only            |
+| Variable | Where | Purpose |
+| --- | --- | --- |
+| `BETTER_AUTH_SECRET` | `.dev.vars` (from `.dev.vars.example`) | Auth signing secret (Wrangler dev) |
+| `DATABASE_URL` | `.env` (from `.env.example`) | Drizzle Kit migrations/seed only |
 | `PUBLIC_URL`         | `wrangler.jsonc` `vars`      | API public URL                              |
 | `CORS_ORIGINS`       | `wrangler.jsonc` `vars`      | Allowed frontend origins                    |
 | `BETTER_AUTH_URL`    | `wrangler.jsonc` `vars`      | Frontend URL for auth callbacks             |
 | `ALLOWED_USERS`      | `wrangler.jsonc` `vars`      | JSON array of two `{ email, name }` objects |
 | `NODE_ENV`           | `wrangler.jsonc` `vars`      | `development` / `production`                |
 
-Local dev: copy `.env.example` → `.env` for secrets. Wrangler loads `.env` when no `.dev.vars` file exists. Public vars come from `wrangler.jsonc`.
+Local dev: copy `.dev.vars.example` → `.dev.vars` for Worker secrets; copy `.env.example` → `.env` for `DATABASE_URL` (Drizzle Kit). Public vars come from `wrangler.jsonc`.
+
+Both workers have `workers_dev: true` and `preview_urls: false`. See [`docs/architecture/deployment.md`](../../docs/architecture/deployment.md) for Workers Builds and preview-build settings.
 
 User accounts are seeded automatically by the scheduled Worker handler (`handlers/seed-users.ts`, cron `0 * * * *`). It reads `ALLOWED_USERS` from Worker env and upserts missing users.
 
@@ -96,7 +101,7 @@ The compose file generates self-signed TLS certs on first start (`postgres-ssl-i
 PRODUCTION_DB_PASSWORD=<secret> bun run hyperdrive:setup
 ```
 
-`wrangler.jsonc` binds `COSTLY_DB` (VPC Network), `COSTLY_DB_POSTGRES` (VPC Service → `127.0.0.1:6001`), and `DB` (Hyperdrive).
+`wrangler.jsonc` `env.main` binds `COSTLY_DB` (VPC Network), `COSTLY_DB_POSTGRES` (VPC Service → `127.0.0.1:6001`), and `DB` (Hyperdrive). Local dev uses top-level `DB` only, with `localConnectionString` pointing at Docker Postgres — VPC bindings are production-only. Production deploys must use `--env main` (see [`docs/architecture/deployment.md`](../../docs/architecture/deployment.md)).
 
 ### Production migrations
 

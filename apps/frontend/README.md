@@ -36,12 +36,17 @@ bun run cf-typegen       # Regenerate bindings (includes API RPC types)
 bun run build            # Production build (includes service worker)
 ```
 
+## Deployment
+
+Production deploys run through **[Cloudflare Workers Builds](https://developers.cloudflare.com/workers/ci-cd/builds/)** when changes merge to `main`. There is no `deploy` script — Workers Builds runs `bun run build` then `npx wrangler deploy` from dashboard settings. See [`docs/architecture/deployment.md`](../../docs/architecture/deployment.md).
+
 ## Environment
 
-Copy `.env.example` → `.env` for both secrets and public vars:
+Copy `.dev.vars.example` → `.dev.vars` for local Worker / Vite dev bindings:
 
-| Variable          | Purpose                       |
-| ----------------- | ----------------------------- |
-| `SECRET_VALUE`    | Server secret                 |
-| `VITE_PUBLIC_URL` | App URL (auth client baseURL) |
-| `VITE_API_URL`    | API URL reference             |
+| Variable | Purpose |
+| --- | --- |
+| `VITE_PUBLIC_URL` | App URL |
+| `VITE_API_URL` | API URL (auth client baseURL, HTTP fallback client) |
+
+`workers_dev: true` and `preview_urls: false` in `wrangler.jsonc`. See [`docs/architecture/deployment.md`](../../docs/architecture/deployment.md) for Workers Builds settings.

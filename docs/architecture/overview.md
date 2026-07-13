@@ -9,7 +9,8 @@ This project separates **product architecture** (documented here and in sibling 
 | What features exist, who can do what, domain rules | `docs/product/`, `docs/domain/` |
 | Which services own which data, external integrations | `docs/architecture/` |
 | How code is organized (API, frontend, handlers, RPC) | `.cursor/rules/monorepo-architecture.mdc` |
-| How to run, deploy, and configure workers | Workspace READMEs |
+| How to run and configure workers locally | Workspace READMEs |
+| How Workers are deployed to Cloudflare | [`deployment.md`](./deployment.md) |
 
 ## Current stack (implementation)
 
