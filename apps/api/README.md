@@ -61,7 +61,7 @@ Production deploys run through **[Cloudflare Workers Builds](https://developers.
 | `PUBLIC_URL`         | `wrangler.jsonc` `vars`      | API public URL                              |
 | `CORS_ORIGINS`       | `wrangler.jsonc` `vars`      | Allowed frontend origins                    |
 | `BETTER_AUTH_URL`    | `wrangler.jsonc` `vars`      | Frontend URL for auth callbacks             |
-| `API_PUBLIC_URL`     | `wrangler.jsonc` `vars`      | API public URL (trusted origin for auth)    |
+| `API_PUBLIC_URL`     | `wrangler.jsonc` `vars`      | API public URL (`trustedOrigins`; must match frontend `VITE_API_URL`) |
 | `COOKIE_DOMAIN`      | `wrangler.jsonc` `vars`      | Shared auth cookie domain                   |
 | `ALLOWED_USERS`      | `wrangler.jsonc` `vars`      | JSON array of two `{ email, name }` objects |
 | `RESEND_FROM_EMAIL`  | `wrangler.jsonc` `vars`      | Verified Resend sender (`Costly <login@domain>`) |
@@ -70,7 +70,7 @@ Production deploys run through **[Cloudflare Workers Builds](https://developers.
 
 Local dev: copy `.env.example` → `.env` for secrets and `DATABASE_URL`. Public vars come from `wrangler.jsonc`. **Do not use `.dev.vars`** — Wrangler loads `.env` when no `.dev.vars` file exists.
 
-Both workers have `workers_dev: true` and `preview_urls: false`. See [`docs/architecture/deployment.md`](../../docs/architecture/deployment.md) for Workers Builds and preview-build settings.
+Both workers have `workers_dev: true`, `preview_urls: false`, and Smart Placement enabled (`placement.mode: "smart"`). See [`docs/architecture/deployment.md`](../../docs/architecture/deployment.md) for Workers Builds and preview-build settings.
 
 User accounts are seeded automatically by the scheduled Worker handler (`handlers/seed-users.ts`, cron `0 * * * *`). It reads `ALLOWED_USERS` from Worker env and upserts missing users.
 

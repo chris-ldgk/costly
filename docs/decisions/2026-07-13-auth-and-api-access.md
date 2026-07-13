@@ -17,7 +17,8 @@ Costly is a private two-user app deployed as separate Cloudflare Workers (fronte
 
 ## Consequences
 
-- Magic-link callbacks use `BETTER_AUTH_URL` = frontend public URL.
+- Magic-link callbacks use `BETTER_AUTH_URL` = frontend public URL (`VITE_PUBLIC_URL`).
+- Browser auth requests use the API at `VITE_API_URL` (= API `API_PUBLIC_URL`); `crossSubDomainCookies` shares the session cookie across both origins.
 - Frontend server functions validate session via RPC `getSession(headers)` before calling purchase RPC methods.
 - `@costly/api-client` is unused for Costly business logic.
 - CORS on the API worker remains configured for the frontend origin (auth proxy passthrough).

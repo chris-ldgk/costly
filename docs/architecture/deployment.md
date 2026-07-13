@@ -9,7 +9,9 @@ Costly runs as two Cloudflare Workers (`costly-api`, `costly-frontend`). **Deplo
 | `costly-api` | `apps/api/wrangler.jsonc` | `apps/api` | `https://costly-api.stizzle.workers.dev` |
 | `costly-frontend` | `apps/frontend/wrangler.jsonc` | `apps/frontend` | `https://costly-frontend.stizzle.workers.dev` |
 
-Both workers have `workers_dev: true` and `preview_urls: false`. Production URLs use the default `<worker-name>.<account-subdomain>.workers.dev` pattern (no custom hostnames).
+Both workers have `workers_dev: true`, `preview_urls: false`, and **Smart Placement** (`placement.mode: "smart"` in each `wrangler.jsonc`). Production URLs use the default `<worker-name>.<account-subdomain>.workers.dev` pattern (no custom hostnames).
+
+Smart Placement analyzes traffic after deploy and may relocate each Worker closer to its busiest back-end services (for example Hyperdrive/Postgres on `costly-api`, or the `API` service binding on `costly-frontend`). Analysis can take up to ~15 minutes to take effect.
 
 ## Preview builds (disabled)
 
@@ -59,7 +61,12 @@ No compile step — Wrangler bundles TypeScript at deploy time. Runtime secrets 
 | Deploy command | `npx wrangler deploy --env main` |
 | Build watch paths | `apps/frontend/**`, `packages/**` |
 
-The frontend build produces the Worker assets TanStack Start needs. `VITE_*` values for production are in `wrangler.jsonc` `env.main.vars` or dashboard variables, depending on which environment the build deploys.
+The frontend build produces the Worker assets TanStack Start needs. Set `VITE_*` in frontend `.env` locally and in the Workers Builds environment (or `wrangler.jsonc` `vars`) for production:
+
+| Frontend var | Local | Production | API worker counterpart |
+| --- | --- | --- | --- |
+| `VITE_API_URL` | `http://localhost:8787` | `https://costly-api.stizzle.workers.dev` | `API_PUBLIC_URL` |
+| `VITE_PUBLIC_URL` | `http://localhost:3000` | `https://costly-frontend.stizzle.workers.dev` | `BETTER_AUTH_URL`, `CORS_ORIGINS` |
 
 ## What is not deployed via Workers Builds
 

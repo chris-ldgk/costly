@@ -41,20 +41,32 @@ The `from` address must use a domain verified in the Resend dashboard. Template:
 
 - Cookie-based sessions managed by better-auth.
 - Auth HTTP endpoints live on the API worker at `/api/auth/*`.
-- Frontend proxies `/api/auth/*` so the browser uses the frontend origin for auth requests.
+- The browser auth client (`apps/frontend/src/lib/auth-client.ts`) calls the API at `VITE_API_URL` (must match the API worker's `API_PUBLIC_URL` per environment).
+- The frontend worker also proxies same-origin `/api/auth/*` to the API via the `API` service binding (for magic-link verification when the link targets the frontend URL).
 - Session cookies are shared across frontend and API origins via `crossSubDomainCookies` (see env vars below).
-- Protected routes and server functions require a valid session.
+- Protected routes and server functions require a valid session (validated via RPC `getSession`, not `VITE_API_URL`).
+
+## Frontend ↔ API URLs
+
+| Frontend (`apps/frontend`) | API worker (`apps/api`) | Purpose |
+| --- | --- | --- |
+| `VITE_API_URL` | `API_PUBLIC_URL` | Public API base URL — auth client, HTTP fallback client |
+| `VITE_PUBLIC_URL` | `BETTER_AUTH_URL`, `CORS_ORIGINS` | Frontend app URL — magic-link `callbackURL`, better-auth `baseURL` |
+
+Local dev: `VITE_API_URL=http://localhost:8787`, `VITE_PUBLIC_URL=http://localhost:3000`. Production: `https://costly-api.stizzle.workers.dev` and `https://costly-frontend.stizzle.workers.dev` respectively.
 
 ## Cookie configuration
 
 | Setting | Where | Purpose |
 | --- | --- | --- |
-| `BETTER_AUTH_URL` | `wrangler.jsonc` `vars` | Frontend public URL — `baseURL` for better-auth and magic-link callbacks |
-| `API_PUBLIC_URL` | `wrangler.jsonc` `vars` | API public URL — included in `trustedOrigins` |
-| `COOKIE_DOMAIN` | `wrangler.jsonc` `vars` | Shared cookie domain (`localhost` locally, `.stizzle.workers.dev` in production) |
-| `CORS_ORIGINS` | `wrangler.jsonc` `vars` | Frontend origin(s) for CORS and `trustedOrigins` |
+| `BETTER_AUTH_URL` | API `wrangler.jsonc` `vars` | Frontend public URL — better-auth `baseURL` and magic-link generation |
+| `API_PUBLIC_URL` | API `wrangler.jsonc` `vars` | API public URL — `trustedOrigins`; must match frontend `VITE_API_URL` |
+| `COOKIE_DOMAIN` | API `wrangler.jsonc` `vars` | Shared cookie domain (`localhost` locally, `.stizzle.workers.dev` in production) |
+| `CORS_ORIGINS` | API `wrangler.jsonc` `vars` | Frontend origin(s) for CORS and `trustedOrigins` |
+| `VITE_API_URL` | Frontend `.env` / build vars | How the frontend reaches the API from the browser |
+| `VITE_PUBLIC_URL` | Frontend `.env` / build vars | Frontend app URL — post-login redirect target |
 
-The auth client on the frontend uses `VITE_PUBLIC_URL` (same origin) so Set-Cookie responses from the proxied auth handler apply to the frontend hostname. `crossSubDomainCookies` ensures the session cookie is also sent when the API worker handles auth or session checks directly.
+`crossSubDomainCookies` ensures the session cookie set by the API worker is also available on the frontend hostname (and vice versa) when origins differ.
 
 ## Authorization
 

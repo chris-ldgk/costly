@@ -4,8 +4,8 @@ TanStack Start **Costly** app — mobile-first PWA for tracking shared purchases
 
 ## Purpose
 
-- Server-rendered React UI that calls the API via **Cloudflare service bindings** and **server functions**.
-- Proxies `/api/auth/*` to the API worker so session cookies stay on the frontend origin.
+- Server-rendered React UI; **purchase data** via Cloudflare service bindings and server functions (RPC).
+- **Auth** from the browser uses `VITE_API_URL` (auth client); same-origin `/api/auth/*` is also proxied to the API worker for magic-link verification on the frontend URL.
 - Installable as a PWA (vite-plugin-pwa + web manifest).
 
 ## Routes
@@ -46,9 +46,11 @@ Copy `.env.example` → `.env` for local dev bindings:
 
 | Variable | Purpose |
 | --- | --- |
-| `VITE_PUBLIC_URL` | App URL |
-| `VITE_API_URL` | API URL (auth client baseURL, HTTP fallback client) |
+| `VITE_PUBLIC_URL` | Frontend app URL (magic-link `callbackURL`, post-login redirects) |
+| `VITE_API_URL` | API worker URL — browser access to the API (auth client `baseURL`, HTTP fallback `apiClient`) |
+
+Purchase handlers use the `API` service binding on the server, not `VITE_API_URL`. Set `VITE_API_URL` to match the API worker's `API_PUBLIC_URL` for each environment (local: `http://localhost:8787`; production: `https://costly-api.stizzle.workers.dev`).
 
 Do not use `.dev.vars` — Vite and Wrangler load `.env` for local development.
 
-`workers_dev: true` and `preview_urls: false` in `wrangler.jsonc`. See [`docs/architecture/deployment.md`](../../docs/architecture/deployment.md) for Workers Builds settings.
+`workers_dev: true`, `preview_urls: false`, and Smart Placement (`placement.mode: "smart"`) in `wrangler.jsonc`. See [`docs/architecture/deployment.md`](../../docs/architecture/deployment.md) for Workers Builds settings.

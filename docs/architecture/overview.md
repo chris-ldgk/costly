@@ -15,7 +15,7 @@ This project separates **product architecture** (documented here and in sibling 
 ## Current stack (implementation)
 
 - **API** (`apps/api`) — sole owner of database and external services
-- **Frontend** (`apps/frontend`) — SSR UI; calls API via Cloudflare service bindings
+- **Frontend** (`apps/frontend`) — SSR UI; server functions call the API via Cloudflare service bindings; browser auth uses `VITE_API_URL`
 - **Shared packages** — typed HTTP client and UI components
 
 When adding a new bounded context, integration, or data store, document the decision in `docs/decisions/` and update this file if boundaries change.

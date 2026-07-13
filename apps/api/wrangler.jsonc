@@ -7,6 +7,9 @@
   "main": "src/index.ts",
   "compatibility_date": "2026-07-09",
   "compatibility_flags": ["nodejs_compat"],
+  "placement": {
+    "mode": "smart",
+  },
   "vars": {
     "CORS_ORIGINS": "http://localhost:3000",
     "BETTER_AUTH_URL": "http://localhost:3000",
@@ -28,6 +31,9 @@
       "name": "costly-api",
       "workers_dev": true,
       "preview_urls": false,
+      "placement": {
+        "mode": "smart",
+      },
       "vars": {
         "CORS_ORIGINS": "https://costly-frontend.stizzle.workers.dev",
         "BETTER_AUTH_URL": "https://costly-api.stizzle.workers.dev",

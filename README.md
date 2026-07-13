@@ -56,9 +56,11 @@ Set public vars (`ALLOWED_USERS`, `BETTER_AUTH_URL`, etc.) in [`apps/api/wrangle
 
 ```bash
 cd apps/frontend
-cp .env.example .env
+cp .env.example .env   # VITE_PUBLIC_URL, VITE_API_URL
 bun run dev
 ```
+
+`VITE_API_URL` is how the browser reaches the API (auth client); it must match `API_PUBLIC_URL` on the API worker. Server-side handlers use the `API` service binding instead.
 
 Open http://localhost:3000, sign in with a seeded email, and check the API console for the magic link in development.
 
