@@ -27,7 +27,7 @@ jobs:
         with:
           oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
           oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
-          tags: tag:ci
+          tags: tag:costly-pg-migrate
           ping: 100.69.229.78
 
       - name: Setup Bun
