@@ -27,6 +27,10 @@
     "hono": {
       "command": "node",
       "args": [".cursor/mcp/hono/index.mjs"]
+    },
+    "tauri": {
+      "command": "node",
+      "args": [".cursor/mcp/tauri/index.mjs"]
     }
   }
 }

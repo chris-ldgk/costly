@@ -1,42 +1,40 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
 import { Button, Dialog } from "@costly/components";
 import { useState } from "react";
-import { getBalanceFn, settleAllPurchasesFn } from "#/handlers/purchases";
+import { getBalance, settleAllPurchases } from "#/lib/purchases";
 import { getBalanceText } from "#/utils/balance";
 import { formatDate } from "#/utils/format";
 
 export const Route = createFileRoute("/_app/")({
-  loader: async () => {
-    const balance = await getBalanceFn();
-    return { balance };
-  },
   component: BalancePage,
 });
 
 function BalancePage() {
-  const { balance: initialBalance } = Route.useLoaderData();
   const queryClient = useQueryClient();
   const [settleOpen, setSettleOpen] = useState(false);
 
-  const getBalance = useServerFn(getBalanceFn);
-  const settleAll = useServerFn(settleAllPurchasesFn);
-
   const { data: balance } = useQuery({
-    initialData: initialBalance,
     queryKey: ["balance"],
-    queryFn: () => getBalance(),
+    queryFn: getBalance,
   });
 
   const settleMutation = useMutation({
-    mutationFn: () => settleAll(),
+    mutationFn: settleAllPurchases,
     onSuccess: async () => {
       setSettleOpen(false);
       await queryClient.invalidateQueries({ queryKey: ["purchases"] });
       await queryClient.invalidateQueries({ queryKey: ["balance"] });
     },
   });
+
+  if (!balance) {
+    return (
+      <main className="mx-auto max-w-lg px-4 py-4">
+        <p className="text-sm text-neutral-500">Loading balance…</p>
+      </main>
+    );
+  }
 
   const balanceText = getBalanceText(balance);
 

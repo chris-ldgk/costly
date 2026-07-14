@@ -11,7 +11,7 @@
     "mode": "smart",
   },
   "vars": {
-    "CORS_ORIGINS": "http://localhost:3000",
+    "CORS_ORIGINS": "http://localhost:3000,tauri://localhost",
     "BETTER_AUTH_URL": "http://localhost:3000",
     "API_PUBLIC_URL": "http://localhost:8787",
     "COOKIE_DOMAIN": "localhost",
@@ -35,7 +35,7 @@
         "mode": "smart",
       },
       "vars": {
-        "CORS_ORIGINS": "https://costly-frontend.stizzle.workers.dev",
+        "CORS_ORIGINS": "https://costly-frontend.stizzle.workers.dev,tauri://localhost",
         "BETTER_AUTH_URL": "https://costly-api.stizzle.workers.dev",
         "COOKIE_DOMAIN": ".stizzle.workers.dev",
         "ALLOWED_USERS": "[{\"email\":\"ckolb@protonmail.com\",\"name\":\"Chris\"},{\"email\":\"jacquelinesegeth12@gmail.com\",\"name\":\"Jac\"}]",

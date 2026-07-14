@@ -8,3 +8,10 @@ export function createApiClient(
 ): ApiClient {
   return hc<AppRouter>(...args);
 }
+
+export function createApiClientWithCredentials(baseUrl: string): ApiClient {
+  return hc<AppRouter>(baseUrl, {
+    fetch: (input: RequestInfo | URL, init?: RequestInit) =>
+      fetch(input, { ...init, credentials: "include" }),
+  });
+}

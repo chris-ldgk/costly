@@ -41,9 +41,10 @@ For technical setup (commands, bindings, file layout), see the root [README](../
 ### Architecture
 
 - [Overview](./architecture/overview.md) — how product architecture relates to the monorepo
-- [Deployment](./architecture/deployment.md) — Workers Builds CI/CD for `costly-api` and `costly-frontend`
+- [Deployment](./architecture/deployment.md) — Workers Builds for `costly-api` and `costly-frontend`, Tauri iOS
 - [Database connectivity](./architecture/database-connectivity.md) — production Postgres via Hyperdrive, tunnel, and migration CI
 
 ### Decisions
 
-- [2026-07-13 — Auth via HTTP (proxied) and purchases via RPC](./decisions/2026-07-13-auth-and-api-access.md)
+- [2026-07-14 — HTTP API, static SPA, and Tauri iOS](./decisions/2026-07-14-http-api-and-mobile.md)
+- [2026-07-13 — Auth via HTTP and purchases via RPC](./decisions/2026-07-13-auth-and-api-access.md) (superseded)

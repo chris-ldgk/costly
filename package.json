@@ -9,11 +9,13 @@
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "typecheck": "bun run typecheck:api && bun run typecheck:frontend && bun run typecheck:api-client && bun run typecheck:components",
+    "typecheck": "bun run typecheck:api && bun run typecheck:frontend && bun run typecheck:api-client && bun run typecheck:components && bun run typecheck:mobile",
     "typecheck:api": "bun run --filter @costly/api typecheck",
     "typecheck:frontend": "bun run --filter frontend typecheck",
     "typecheck:api-client": "bun run --filter @costly/api-client typecheck",
     "typecheck:components": "bun run --filter @costly/components typecheck",
+    "typecheck:mobile": "bun run --filter @costly/mobile typecheck",
+    "dev:mobile": "bun run --filter @costly/mobile dev:ios",
     "check": "bun run typecheck && bun run lint"
   },
   "devDependencies": {

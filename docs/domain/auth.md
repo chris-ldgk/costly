@@ -45,19 +45,20 @@ The `from` address must use a domain verified in the Resend dashboard. Template:
 
 - Cookie-based sessions managed by better-auth.
 - Auth HTTP endpoints live on the API worker at `/api/auth/*`.
-- The browser auth client (`apps/frontend/src/lib/auth-client.ts`) calls the API at `VITE_API_URL` (must match the API worker's `API_PUBLIC_URL` per environment).
-- The frontend worker also proxies same-origin `/api/auth/*` to the API via the `API` service binding.
-- Session cookies are shared across frontend and API origins via `crossSubDomainCookies` (see env vars below).
-- Protected routes and server functions require a valid session (validated via RPC `getSession`, not `VITE_API_URL`).
+- The browser auth client (`apps/frontend/src/lib/auth-client.ts`) calls the API at `VITE_API_URL`.
+- Purchase API routes at `/api/v1/*` validate the session cookie via `sessionMiddleware`.
+- Clients (web PWA and Tauri iOS) send `credentials: 'include'` on all API requests.
+- Protected routes check session via `authClient.getSession()` in TanStack Router `beforeLoad`.
 
-## Frontend ↔ API URLs
+## Client ↔ API URLs
 
-| Frontend (`apps/frontend`) | API worker (`apps/api`) | Purpose |
-| --- | --- | --- |
-| `VITE_API_URL` | `API_PUBLIC_URL` | Public API base URL — auth client, HTTP fallback client |
-| `VITE_PUBLIC_URL` | `BETTER_AUTH_URL`, `CORS_ORIGINS` | Frontend app URL — better-auth `baseURL` |
+| Client | Var | API worker | Purpose |
+| --- | --- | --- | --- |
+| Web / Tauri | `VITE_API_URL` | `API_PUBLIC_URL` | API base URL |
+| Web PWA | `VITE_PUBLIC_URL` | `CORS_ORIGINS` | Allowed client origin |
+| Tauri iOS | — | `CORS_ORIGINS` | `tauri://localhost` |
 
-Local dev: `VITE_API_URL=http://localhost:8787`, `VITE_PUBLIC_URL=http://localhost:3000`. Production: `https://costly-api.stizzle.workers.dev` and `https://costly-frontend.stizzle.workers.dev` respectively.
+Local dev: `VITE_API_URL=http://localhost:8787`, `VITE_PUBLIC_URL=http://localhost:3000`. Production web: `https://costly-frontend.stizzle.workers.dev`.
 
 ## Cookie configuration
 

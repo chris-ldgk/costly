@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted
+Superseded by [2026-07-14-http-api-and-mobile.md](./2026-07-14-http-api-and-mobile.md)
 
 ## Context
 

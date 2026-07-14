@@ -27,7 +27,8 @@ Product behavior, domain rules, and app-level architecture decisions live in `do
 | --- | --- |
 | `README.md` | Monorepo structure, stack, core principles, root scripts, getting started |
 | `apps/api/README.md` | API layout, routes, handlers, schema, DB scripts, bindings, RPC entrypoints |
-| `apps/frontend/README.md` | Frontend layout, routing, server functions, data-fetching patterns, dev commands |
+| `apps/frontend/README.md` | Frontend layout, routing, client API patterns, dev commands |
+| `apps/mobile/README.md` | Tauri iOS dev, build, and device setup |
 | `packages/api-client/README.md` | Client usage, type inference, when to use HTTP vs service binding |
 | `packages/components/README.md` | Subframe sync, component conventions, exports, Tailwind preset |
 
@@ -48,6 +49,7 @@ Update the README closest to the change. If a change affects multiple workspaces
 | `.cursor/rules/react-email-docs.mdc` | React Email doc-search workflow |
 | `.cursor/rules/resend-docs.mdc` | Resend doc-search workflow |
 | `.cursor/rules/better-auth-docs.mdc` | Better Auth doc-search workflow |
+| `.cursor/rules/tauri-docs.mdc` | Tauri doc-search workflow |
 | `.cursor/rules/components-package.mdc` | Read-only `@costly/components` — no hand-edits |
 | `.cursor/rules/business-logic-docs.mdc` | Business-logic doc workflow, `docs/` structure, ADR conventions |
 

@@ -4,34 +4,30 @@
   "account_id": "4c1f658199b03cc5095e7a3c6563457d",
   "workers_dev": true,
   "preview_urls": false,
-  "compatibility_date": "2025-09-02",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-07-09",
   "compatibility_flags": ["nodejs_compat"],
   "placement": {
     "mode": "smart",
   },
-  "main": "@tanstack/react-start/server-entry",
-  "services": [
-    {
-      "binding": "API",
-      "service": "costly-api",
-      "entrypoint": "FrontendEntrypoint",
-    },
-  ],
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+  },
   "env": {
     "main": {
+      "name": "costly-frontend",
       "workers_dev": true,
       "preview_urls": false,
-      "name": "costly-frontend",
       "placement": {
         "mode": "smart",
       },
-      "services": [
-        {
-          "binding": "API",
-          "service": "costly-api",
-          "entrypoint": "FrontendEntrypoint",
-        },
-      ],
+      "assets": {
+        "directory": "./dist",
+        "binding": "ASSETS",
+        "not_found_handling": "single-page-application",
+      },
     },
   },
 }

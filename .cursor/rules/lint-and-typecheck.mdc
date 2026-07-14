@@ -63,5 +63,6 @@ After making code changes:
 | `apps/frontend` | `frontend` | `typecheck`, `lint` |
 | `packages/api-client` | `@costly/api-client` | `typecheck`, `lint` |
 | `packages/components` | `@costly/components` | `typecheck`, `lint` |
+| `apps/mobile` | `@costly/mobile` | `typecheck`, `lint` |
 
 If you change shared types in `@costly/api`, also typecheck `@costly/api-client` and `frontend`.

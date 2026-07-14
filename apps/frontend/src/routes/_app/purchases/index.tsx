@@ -1,54 +1,46 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
 import { FeatherLayoutGrid, FeatherPencil, FeatherTable } from "@subframe/core";
 import { Badge, Button, Table, Tabs } from "@costly/components";
 import { useState } from "react";
 import {
-  getPurchasesFn,
+  getPurchases,
   PURCHASES_PAGE_SIZE,
-} from "#/handlers/purchases";
+  type Purchase,
+  type PurchaseListResult,
+} from "#/lib/purchases";
 import { formatDate, formatEur } from "#/utils/format";
 
-type Purchase = Awaited<
-  ReturnType<typeof getPurchasesFn>
->["purchases"][number];
 type ViewMode = "cards" | "table";
 
 export const Route = createFileRoute("/_app/purchases/")({
-  loader: async () => {
-    const initialPage = await getPurchasesFn({
-      data: { limit: PURCHASES_PAGE_SIZE, offset: 0 },
-    });
-    return { initialPage };
-  },
   component: PurchasesPage,
 });
 
 function PurchasesPage() {
-  const { initialPage } = Route.useLoaderData();
-  const getPurchases = useServerFn(getPurchasesFn);
   const [view, setView] = useState<ViewMode>("cards");
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    useInfiniteQuery({
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
+    useInfiniteQuery<PurchaseListResult>({
       queryKey: ["purchases"],
       queryFn: ({ pageParam }) =>
-        getPurchases({
-          data: { limit: PURCHASES_PAGE_SIZE, offset: pageParam },
-        }),
+        getPurchases(PURCHASES_PAGE_SIZE, pageParam as number),
       initialPageParam: 0,
       getNextPageParam: (lastPage, allPages) =>
         lastPage.hasMore
           ? allPages.reduce((sum, page) => sum + page.purchases.length, 0)
           : undefined,
-      initialData: {
-        pages: [initialPage],
-        pageParams: [0],
-      },
     });
 
-  const purchases = data.pages.flatMap((page) => page.purchases);
+  const purchases = data?.pages.flatMap((page) => page.purchases) ?? [];
+
+  if (isLoading) {
+    return (
+      <main className="mx-auto max-w-lg px-4 py-4">
+        <p className="text-sm text-neutral-500">Loading purchases…</p>
+      </main>
+    );
+  }
 
   return (
     <main className="mx-auto max-w-lg space-y-4 px-4 py-4">

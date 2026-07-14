@@ -1,37 +1,38 @@
 # Costly
 
-A private, mobile-first PWA for two people to track shared purchases and settle up. Built on Cloudflare Workers with TanStack Start (frontend) and Hono (API).
+A private, mobile-first app for two people to track shared purchases and settle up. Web PWA (Cloudflare Worker) + native iOS (Tauri), backed by a Cloudflare Worker API.
 
 ## Repository structure
 
 ```
 apps/
-  api/          # Cloudflare Worker — database, auth, purchase RPC
-  frontend/     # TanStack Start app — mobile-first PWA UI
+  api/          # Cloudflare Worker — database, auth, purchase HTTP API
+  frontend/     # Static Vite SPA — mobile-first PWA UI
+  mobile/       # Tauri iOS shell wrapping frontend dist
 packages/
-  api-client/   # Type-safe Hono RPC client (unused for Costly business logic)
+  api-client/   # Type-safe Hono HTTP client
   components/   # Shared UI library (Subframe-generated)
 docs/           # Product and domain documentation
 ```
 
 ## Stack
 
-| Layer    | Technologies                                                                       |
-| -------- | ---------------------------------------------------------------------------------- |
-| Monorepo | Bun workspaces, TypeScript, ESLint                                                 |
-| Runtime  | Cloudflare Workers                                                                 |
-| API      | Hono, Drizzle ORM, better-auth (email OTP), PostgreSQL via Hyperdrive             |
-| Frontend | TanStack Start/Router/Query/Form, React 19, PWA (vite-plugin-pwa), Tailwind CSS v3 |
-| UI       | `@costly/components` (Subframe)                                                    |
+| Layer | Technologies |
+| --- | --- |
+| Monorepo | Bun workspaces, TypeScript, ESLint |
+| API | Cloudflare Workers, Hono, Drizzle ORM, better-auth, Hyperdrive |
+| Web | Vite SPA, TanStack Router/Query/Form, React 19, PWA, Tailwind v3 |
+| iOS | Tauri v2, shared React UI in WebView |
+| UI | `@costly/components` (Subframe) |
 
 ## Core principles
 
-1. **Database and auth live in the API only** — frontend calls the API via Cloudflare service bindings.
-2. **Purchase data via RPC only** — no public REST API for purchases; auth uses proxied HTTP at `/api/auth/*`.
-3. **Email OTP auth only** — two users seeded from `ALLOWED_USERS`; no public registration.
-4. **Mobile-first PWA** — installable on iOS/Android home screens.
+1. **Database lives in the API only** — clients call HTTP endpoints with session cookies.
+2. **Purchase data via `/api/v1/*`** — authenticated REST routes; no service bindings.
+3. **Email OTP auth only** — two users seeded from `ALLOWED_USERS`.
+4. **Shared UI** — one frontend build for web PWA and Tauri iOS.
 
-See [`docs/`](./docs/) for product rules and [`.cursor/rules/monorepo-architecture.mdc`](./.cursor/rules/monorepo-architecture.mdc) for technical architecture.
+See [`docs/`](./docs/) and [`.cursor/rules/monorepo-architecture.mdc`](./.cursor/rules/monorepo-architecture.mdc).
 
 ## Getting started
 
@@ -43,16 +44,13 @@ bun install
 
 ```bash
 cd apps/api
-cp .env.example .env   # secrets + DATABASE_URL (do not use .dev.vars)
+cp .env.example .env
 bun run db:up
 bun run db:migrate
-bun run dev:scheduled   # start API with /__scheduled test endpoint
-bun run scheduled:run   # trigger seed (in another terminal, after dev is up)
+bun run dev:scheduled
 ```
 
-Set public vars (`ALLOWED_USERS`, `BETTER_AUTH_URL`, etc.) in [`apps/api/wrangler.jsonc`](apps/api/wrangler.jsonc) `vars`.
-
-### Frontend
+### Web frontend
 
 ```bash
 cd apps/frontend
@@ -60,15 +58,24 @@ cp .env.example .env   # VITE_PUBLIC_URL, VITE_API_URL
 bun run dev
 ```
 
-`VITE_API_URL` is how the browser reaches the API (auth client); it must match `API_PUBLIC_URL` on the API worker. Server-side handlers use the `API` service binding instead.
+### iOS (macOS + Xcode)
 
-Open http://localhost:3000, sign in with a seeded email, and check the API console for the OTP in development.
+```bash
+cd apps/mobile
+bun run dev:ios
+```
+
+See [`apps/mobile/README.md`](./apps/mobile/README.md) for physical device setup.
 
 ## Deployment
 
-Workers are deployed through **[Cloudflare Workers Builds](https://developers.cloudflare.com/workers/ci-cd/builds/)** when changes merge to `main` — not via `package.json` deploy scripts. Preview builds are disabled (`preview_urls: false`; non-production branch builds off in the dashboard). See [`docs/architecture/deployment.md`](./docs/architecture/deployment.md) for per-Worker build settings (`costly-api`, `costly-frontend`).
+- **API:** Cloudflare Workers Builds on merge to `main`
+- **Web PWA:** Cloudflare Workers Builds (`costly-frontend`)
+- **iOS:** Local/Xcode builds via Tauri
 
-### Checks
+See [`docs/architecture/deployment.md`](./docs/architecture/deployment.md).
+
+## Checks
 
 ```bash
 bun run check   # typecheck + lint

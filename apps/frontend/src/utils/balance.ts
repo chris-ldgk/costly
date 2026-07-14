@@ -1,9 +1,7 @@
-import type { getBalanceFn } from "#/handlers/purchases";
+import type { BalanceResult } from "#/lib/purchases";
 import { formatEur } from "#/utils/format";
 
-export function getBalanceText(
-  balance: Awaited<ReturnType<typeof getBalanceFn>>,
-) {
+export function getBalanceText(balance: BalanceResult) {
   const { netCentsUserBOwesUserA, userA, userB } = balance;
 
   if (netCentsUserBOwesUserA === 0) {

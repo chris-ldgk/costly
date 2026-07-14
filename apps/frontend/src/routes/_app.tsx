@@ -6,12 +6,12 @@ import {
 } from "@tanstack/react-router";
 import { Button } from "@costly/components";
 import { BottomTabNav } from "#/components/BottomTabNav";
-import { getSessionFn } from "#/handlers/purchases";
+import { getSession } from "#/lib/session";
 import { authClient } from "#/lib/auth-client";
 
 export const Route = createFileRoute("/_app")({
   beforeLoad: async () => {
-    const { user } = await getSessionFn();
+    const { user } = await getSession();
     if (!user) {
       // eslint-disable-next-line @typescript-eslint/only-throw-error -- router redirect
       throw redirect({ to: "/login" });

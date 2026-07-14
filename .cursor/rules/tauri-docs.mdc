@@ -1,0 +1,62 @@
+---
+description: How to search Tauri v2 documentation for desktop and mobile app development
+alwaysApply: false
+---
+
+# Tauri Documentation
+
+Use current Tauri v2 docs — do not rely on training data for API details.
+
+## Priority 1: Tauri MCP server
+
+If the `tauri` MCP server is available, use these tools:
+
+1. `search_tauri_docs` — find pages by keyword; filter with `category` (`start`, `develop`, `distribute`, `security`, `plugins`, `reference`)
+2. `fetch_tauri_doc` — get full Markdown by URL or slug
+3. `list_tauri_topics` — browse topics by category
+
+Workflow: search first, then fetch the most relevant page.
+
+## Priority 2: Context7 MCP (fallback)
+
+If the Tauri MCP server is unavailable, use Context7 `resolve-library-id` then `query-docs`:
+
+| Source | Preferred Context7 library ID |
+| --- | --- |
+| Tauri v2 | `/tauri-apps/tauri` |
+| Tauri docs site | `/websites/v2_tauri_app` |
+
+Pass the user's full question as the `query` parameter.
+
+## Priority 3: Direct sources (shell fallback)
+
+```bash
+curl -s https://v2.tauri.app/llms.txt
+curl -sH "Accept: text/markdown" https://v2.tauri.app/<slug>
+```
+
+## Category quick reference
+
+| Category | Topics |
+| --- | --- |
+| `start` | Project creation, prerequisites, frontend setup (Vite, etc.) |
+| `develop` | IPC, configuration, debugging, mobile dev, state |
+| `distribute` | App store publishing, installers, signing |
+| `security` | Capabilities, permissions, CSP, asset protocol |
+| `plugins` | Built-in and community plugins |
+
+## Common slugs
+
+- Vite frontend: `start/frontend/vite`
+- Project structure: `start/project-structure`
+- iOS development: `distribute/app-store/ios`
+- Mobile dev workflow: `develop` (see Develop section)
+- Capabilities: `security/capabilities`
+- Configuration: `develop/configuration-files`
+
+## Notes
+
+- Tauri v2 supports iOS and Android in addition to desktop.
+- For monorepo setups, point `frontendDist` at the shared frontend build output.
+- Mobile dev requires `TAURI_DEV_HOST` in the Vite server config for physical devices.
+- Use `tauri ios dev` / `tauri android dev` instead of `tauri dev` for mobile targets.

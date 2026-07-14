@@ -1,9 +1,8 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
 import { useForm } from "@tanstack/react-form";
 import { Button, TextField } from "@costly/components";
-import { createPurchaseFn } from "#/handlers/purchases";
+import { createPurchase } from "#/lib/purchases";
 import { parseEurToCents } from "#/utils/format";
 
 export const Route = createFileRoute("/_app/purchases/new")({
@@ -13,7 +12,6 @@ export const Route = createFileRoute("/_app/purchases/new")({
 function NewPurchasePage() {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const createPurchase = useServerFn(createPurchaseFn);
 
   const mutation = useMutation({
     mutationFn: createPurchase,
@@ -35,12 +33,10 @@ function NewPurchasePage() {
     },
     onSubmit: async ({ value }) => {
       await mutation.mutateAsync({
-        data: {
-          name: value.name.trim(),
-          amountCents: parseEurToCents(value.amount),
-          partnerSharePercent: Number.parseInt(value.partnerSharePercent, 10),
-          purchasedAt: new Date(value.purchasedAt),
-        },
+        name: value.name.trim(),
+        amountCents: parseEurToCents(value.amount),
+        partnerSharePercent: Number.parseInt(value.partnerSharePercent, 10),
+        purchasedAt: new Date(value.purchasedAt),
       });
     },
   });

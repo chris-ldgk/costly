@@ -4,11 +4,14 @@ import {
   notFound,
   useRouter,
 } from "@tanstack/react-router";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "@tanstack/react-form";
 import { Badge, Button, TextField } from "@costly/components";
-import { getPurchaseFn, updatePurchaseFn } from "#/handlers/purchases";
+import {
+  getPurchase,
+  updatePurchase,
+  type Purchase,
+} from "#/lib/purchases";
 import {
   formatCentsToEurInput,
   formatDateInput,
@@ -16,31 +19,50 @@ import {
 } from "#/utils/format";
 
 export const Route = createFileRoute("/_app/purchases/$purchaseId/edit")({
-  loader: async ({ params }) => {
-    try {
-      const purchase = await getPurchaseFn({
-        data: { purchaseId: params.purchaseId },
-      });
-      return { purchase };
-    } catch {
-      // eslint-disable-next-line @typescript-eslint/only-throw-error -- router notFound
-      throw notFound();
-    }
-  },
   component: EditPurchasePage,
 });
 
 function EditPurchasePage() {
-  const { purchase } = Route.useLoaderData();
+  const { purchaseId } = Route.useParams();
+
+  const { data: purchase, isError } = useQuery({
+    queryKey: ["purchase", purchaseId],
+    queryFn: () => getPurchase(purchaseId),
+  });
+
+  if (isError) {
+    // eslint-disable-next-line @typescript-eslint/only-throw-error -- router notFound
+    throw notFound();
+  }
+
+  if (!purchase) {
+    return (
+      <main className="mx-auto max-w-lg px-4 py-4">
+        <p className="text-sm text-neutral-500">Loading purchase…</p>
+      </main>
+    );
+  }
+
+  return <EditPurchaseForm purchase={purchase} purchaseId={purchaseId} />;
+}
+
+function EditPurchaseForm({
+  purchase,
+  purchaseId,
+}: {
+  purchase: Purchase;
+  purchaseId: string;
+}) {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const updatePurchase = useServerFn(updatePurchaseFn);
 
   const mutation = useMutation({
-    mutationFn: updatePurchase,
+    mutationFn: (input: Parameters<typeof updatePurchase>[1]) =>
+      updatePurchase(purchaseId, input),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["purchases"] });
       await queryClient.invalidateQueries({ queryKey: ["balance"] });
+      await queryClient.invalidateQueries({ queryKey: ["purchase", purchaseId] });
       await router.navigate({ to: "/purchases" });
     },
   });
@@ -54,13 +76,10 @@ function EditPurchasePage() {
     },
     onSubmit: async ({ value }) => {
       await mutation.mutateAsync({
-        data: {
-          purchaseId: purchase.id,
-          name: value.name.trim(),
-          amountCents: parseEurToCents(value.amount),
-          partnerSharePercent: Number.parseInt(value.partnerSharePercent, 10),
-          purchasedAt: new Date(value.purchasedAt),
-        },
+        name: value.name.trim(),
+        amountCents: parseEurToCents(value.amount),
+        partnerSharePercent: Number.parseInt(value.partnerSharePercent, 10),
+        purchasedAt: new Date(value.purchasedAt),
       });
     },
   });

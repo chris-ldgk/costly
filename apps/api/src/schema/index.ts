@@ -111,7 +111,7 @@ export type UpdatePurchaseInput = CreatePurchaseInput;
 export const PURCHASES_PAGE_SIZE = 20;
 
 export const purchaseListQuerySchema = z.object({
-  limit: z.number().int().min(1).max(100).default(PURCHASES_PAGE_SIZE),
-  offset: z.number().int().min(0).default(0),
+  limit: z.coerce.number().int().min(1).max(100).default(PURCHASES_PAGE_SIZE),
+  offset: z.coerce.number().int().min(0).default(0),
 });
 export type PurchaseListQuery = z.infer<typeof purchaseListQuerySchema>;

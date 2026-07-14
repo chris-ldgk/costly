@@ -2,13 +2,12 @@ import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { Button, TextField } from "@costly/components";
 import { authClient } from "#/lib/auth-client";
+import { getSession } from "#/lib/session";
 
 export const Route = createFileRoute("/login")({
   beforeLoad: async () => {
-    const { getSessionFn } = await import("#/handlers/purchases");
-    const { user } = await getSessionFn();
+    const { user } = await getSession();
     if (user) {
-      // TanStack Router redirect is not an Error instance by design
       // eslint-disable-next-line @typescript-eslint/only-throw-error -- router redirect
       throw redirect({ to: "/" });
     }

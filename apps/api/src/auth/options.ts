@@ -5,7 +5,13 @@ import type { z } from "zod";
 type Env = z.infer<typeof envSchema>;
 
 export function getTrustedOrigins(env: Env): string[] {
-  return [...new Set([...env.CORS_ORIGINS, env.BETTER_AUTH_URL])];
+  return [
+    ...new Set([
+      ...env.CORS_ORIGINS,
+      env.BETTER_AUTH_URL,
+      "tauri://localhost",
+    ]),
+  ];
 }
 
 export function getAuthAdvancedOptions(
