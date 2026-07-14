@@ -78,6 +78,7 @@ All authenticated users can:
 
 - View all purchases and balance.
 - Log new purchases.
+- Edit and delete any purchase.
 - Trigger "Settle all".
 
 There are no role differences between the two users in MVP.

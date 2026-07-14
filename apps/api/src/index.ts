@@ -5,6 +5,7 @@ import type { ApiBindings } from "./utils/bindings";
 import { createAuth } from "./auth";
 import {
   createPurchase,
+  deletePurchase,
   getBalance,
   getPurchase,
   getPurchases,
@@ -61,6 +62,11 @@ export class FrontendEntrypoint extends WorkerEntrypoint {
   async updatePurchase(purchaseId: string, input: UpdatePurchaseInput) {
     const lib = this.createLib();
     return updatePurchase(lib, purchaseId, input);
+  }
+
+  async deletePurchase(purchaseId: string) {
+    const lib = this.createLib();
+    return deletePurchase(lib, purchaseId);
   }
 
   async getBalance() {

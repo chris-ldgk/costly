@@ -96,6 +96,24 @@ export async function updatePurchase(
   return getPurchase(lib, purchaseId);
 }
 
+export async function deletePurchase(lib: Lib, purchaseId: string) {
+  const [existing] = await lib.db
+    .select({ id: lib.schema.purchases.id })
+    .from(lib.schema.purchases)
+    .where(eq(lib.schema.purchases.id, purchaseId))
+    .limit(1);
+
+  if (!existing) {
+    throw new Error("Purchase not found");
+  }
+
+  await lib.db
+    .delete(lib.schema.purchases)
+    .where(eq(lib.schema.purchases.id, purchaseId));
+
+  return { id: purchaseId };
+}
+
 export type BalanceResult = {
   userA: { id: string; name: string; email: string };
   userB: { id: string; name: string; email: string };

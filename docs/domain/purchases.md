@@ -65,6 +65,14 @@ Either user may edit a purchase's `name`, `amountCents`, `partnerSharePercent`, 
 - Editing an **open** purchase recalculates the current balance.
 - Editing a **settled** purchase updates the historical record only; it does not change the open balance.
 
+## Delete
+
+Either user may delete a purchase.
+
+- Deleting an **open** purchase recalculates the current balance.
+- Deleting a **settled** purchase removes the historical record only; it does not change the open balance.
+- Deletion is permanent (no undo).
+
 ## Display
 
 - Amounts shown in EUR with two decimal places (`de-DE` locale).

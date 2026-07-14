@@ -57,6 +57,13 @@ export const updatePurchaseFn = createServerFn({ method: "POST" })
     return rpcPlain(context.lib.api.updatePurchase(purchaseId, input));
   });
 
+export const deletePurchaseFn = createServerFn({ method: "POST" })
+  .middleware([authMiddleware])
+  .validator(purchaseIdSchema)
+  .handler(async ({ context, data }) => {
+    return rpcPlain(context.lib.api.deletePurchase(data.purchaseId));
+  });
+
 export const PURCHASES_PAGE_SIZE = 20;
 
 const purchaseListQuerySchema = z.object({
