@@ -78,9 +78,9 @@ packages/components/
     └── tailwind.config.js
 ```
 
-**Sync:** `cd packages/components && bun sync`
+**Sync:** `cd packages/components && bun sync` (agents do not edit this package — see [`.cursor/rules/components-package.mdc`](./components-package.mdc))
 
-**Convention:** edit `index.tsx` wrappers, not the generated `Component.tsx` files. Use `// @subframe/sync-disable` to protect customizations.
+**Convention:** treat the package as read-only. Customize in `apps/frontend/src/components/` or at call sites — never edit `packages/components/`.
 
 **Import in frontend:** `import { Button, TextField } from "@costly/components"`.
 
@@ -127,7 +127,7 @@ Route loader / useServerFn()
         → handlers/*.ts → Drizzle
 ```
 
-Server functions live in `apps/frontend/src/handlers/`. Use `plain()` to strip non-serializable values from RPC responses.
+Server functions live in `apps/frontend/src/handlers/`. Use `rpcPlain()` / `withRpc()` from `#/utils/disposable` to clone RPC results and call `Symbol.dispose()` on service-binding returns.
 
 ### 5. Server-first data fetching with TanStack Query
 

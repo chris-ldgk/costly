@@ -1,0 +1,37 @@
+---
+description: Do not edit packages/components — Subframe-synced UI library is read-only in this repo
+alwaysApply: true
+---
+
+# `@costly/components` Is Read-Only
+
+**Never change files under `packages/components/`.** This includes generated `Component.tsx` files, wrapper `index.tsx` files, layouts, `tailwind.config.js`, barrel exports, and package config.
+
+## Why
+
+The package is synced from [Subframe](https://subframe.com). Local edits drift from the design system and are overwritten on the next `bun sync`.
+
+## How to update UI primitives
+
+1. Change the design in Subframe, then sync:
+
+   ```bash
+   cd packages/components && bun sync
+   ```
+
+2. Use the Subframe MCP / skills (`design`, `develop`, `install`) when adding or changing components in Subframe — not hand-edits in this repo.
+
+## Where to put customizations
+
+| Need | Do this instead |
+| --- | --- |
+| Component behavior or styling tweaks | Wrapper in `apps/frontend/src/components/` |
+| Page layout / composition | `apps/frontend/src/routes/` |
+| App-specific Tailwind overrides | `apps/frontend/tailwind.config.js` (extends `@costly/components/tailwind-config`) |
+| One-off className adjustments | Pass `className` at the call site in the frontend |
+
+## Rules
+
+- Do not edit, create, or delete files in `packages/components/` unless the user **explicitly** asks to sync from Subframe or run the Subframe CLI — and even then, prefer `bun sync` over manual file edits.
+- Do not add `// @subframe/sync-disable` wrappers in this package — build frontend wrappers instead.
+- Import from `@costly/components` in the frontend; never copy component source into apps.

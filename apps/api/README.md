@@ -5,7 +5,7 @@ Cloudflare Worker backend for **Costly** — auth, database access, and purchase
 ## Purpose
 
 - The **only** workspace that talks to the database and Cloudflare platform bindings.
-- **better-auth** magic-link authentication at `/api/auth/*` (proxied through the frontend).
+- **better-auth** email OTP authentication at `/api/auth/*`.
 - Purchase operations exposed via **RPC only** on `FrontendEntrypoint` — no public REST routes for purchases.
 
 ```
@@ -19,7 +19,7 @@ handlers/purchases.ts  ← shared business logic
 | ---------- | -------------------------------------------------------------------------------------- |
 | Runtime    | Cloudflare Workers                                                                     |
 | HTTP       | Hono (auth routes + CORS)                                                              |
-| Auth       | better-auth + Drizzle adapter, magic-link plugin; emails via Resend + React Email |
+| Auth       | better-auth + Drizzle adapter, email OTP plugin; codes via Resend + React Email |
 | Database   | Drizzle ORM + PostgreSQL via Hyperdrive (`DB` binding) |
 | Validation | Zod                                                                                    |
 

@@ -6,7 +6,7 @@ Accepted
 
 ## Context
 
-Costly is a private two-user app deployed as separate Cloudflare Workers (frontend + API). Purchase data must not be exposed via a public REST API. Authentication requires HTTP endpoints for magic-link verification callbacks and session cookies.
+Costly is a private two-user app deployed as separate Cloudflare Workers (frontend + API). Purchase data must not be exposed via a public REST API. Authentication requires HTTP endpoints for email OTP sign-in and session cookies.
 
 ## Decision
 
@@ -17,7 +17,7 @@ Costly is a private two-user app deployed as separate Cloudflare Workers (fronte
 
 ## Consequences
 
-- Magic-link callbacks use `BETTER_AUTH_URL` = frontend public URL (`VITE_PUBLIC_URL`).
+- `BETTER_AUTH_URL` = frontend public URL (`VITE_PUBLIC_URL`); browser auth uses `VITE_API_URL` (= API `API_PUBLIC_URL`).
 - Browser auth requests use the API at `VITE_API_URL` (= API `API_PUBLIC_URL`); `crossSubDomainCookies` shares the session cookie across both origins.
 - Frontend server functions validate session via RPC `getSession(headers)` before calling purchase RPC methods.
 - `@costly/api-client` is unused for Costly business logic.

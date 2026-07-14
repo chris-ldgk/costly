@@ -3,7 +3,7 @@ import { Pool } from "pg";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "@better-auth/drizzle-adapter";
-import { magicLink } from "better-auth/plugins";
+import { emailOTP } from "better-auth/plugins";
 import { getScriptEnv } from "../utils/wrangler-vars";
 import { getAuthAdvancedOptions, getTrustedOrigins } from "../auth/options";
 import { envSchema } from "../utils/env";
@@ -32,9 +32,9 @@ export const auth = betterAuth({
     enabled: false,
   },
   plugins: [
-    magicLink({
+    emailOTP({
       disableSignUp: true,
-      sendMagicLink: () => {},
+      sendVerificationOTP: async () => {},
     }),
   ],
 });

@@ -1,0 +1,66 @@
+---
+description: How to search Better Auth documentation for auth plugins, sessions, and configuration
+alwaysApply: false
+---
+
+# Better Auth Documentation
+
+Use current Better Auth docs — do not rely on training data for API details.
+
+## Priority 1: Context7 MCP
+
+Use Context7 `query-docs` with library ID `/better-auth/better-auth`.
+
+Example queries:
+
+- "email OTP plugin sendVerificationOTP disableSignUp"
+- "magic link plugin sendMagicLink"
+- "crossSubDomainCookies trustedOrigins baseURL"
+- "drizzle adapter schema plugins"
+- "createAuthClient emailOTPClient Hono integration"
+
+Workflow: search with the user's specific auth feature, then confirm API shape before implementing.
+
+## Priority 2: Direct sources (shell fallback)
+
+```bash
+# Doc index
+curl -s https://www.better-auth.com/llms.txt
+
+# Fetch a page as Markdown (Accept header)
+curl -sH "Accept: text/markdown" https://www.better-auth.com/docs/plugins/email-otp
+curl -sH "Accept: text/markdown" https://www.better-auth.com/docs/integrations/hono
+curl -sH "Accept: text/markdown" https://www.better-auth.com/docs/concepts/cookies
+curl -sH "Accept: text/markdown" https://www.better-auth.com/docs/reference/options
+```
+
+GitHub source (when docs page is unclear):
+
+```bash
+curl -s https://raw.githubusercontent.com/better-auth/better-auth/main/docs/content/docs/plugins/email-otp.mdx
+```
+
+Official docs: https://www.better-auth.com/docs
+
+## Conventions in this repo
+
+- Auth runs on the **API worker** only (`apps/api/src/auth/`).
+- HTTP routes: `/api/auth/*` on Hono; frontend proxies same-origin `/api/auth/*`.
+- Browser auth client: `apps/frontend/src/lib/auth-client.ts` — `baseURL` is `VITE_API_URL`.
+- Database: Drizzle adapter with `authSchema` in `apps/api/src/schema/`.
+- Sign-in method: **Email OTP** (`emailOTP` plugin) — no passwords, `disableSignUp: true`.
+- Allowed users: validate email against `ALLOWED_USERS` before sending OTP.
+- Dev: log OTP to API console; production: send via Resend + React Email.
+
+## Plugin quick reference
+
+| Plugin | Server import | Client import |
+| --- | --- | --- |
+| Email OTP | `emailOTP` from `better-auth/plugins` | `emailOTPClient` from `better-auth/client/plugins` |
+| Magic link | `magicLink` from `better-auth/plugins` | `magicLinkClient` from `better-auth/client/plugins` |
+
+## Notes
+
+- Better Auth ships an official remote docs MCP — see https://www.better-auth.com/docs/ai/mcp if configured in the dashboard.
+- `@better-auth/cli` generates/migrates auth schema — run from `apps/api` when plugin schema changes.
+- Do not await email sending inside `sendVerificationOTP` if timing attacks are a concern; in Workers use `waitUntil` for background send (see Better Auth email OTP docs).

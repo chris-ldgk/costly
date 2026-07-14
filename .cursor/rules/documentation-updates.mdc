@@ -47,6 +47,8 @@ Update the README closest to the change. If a change affects multiple workspaces
 | `.cursor/rules/hono-docs.mdc` | Hono MCP setup or doc-search workflow |
 | `.cursor/rules/react-email-docs.mdc` | React Email doc-search workflow |
 | `.cursor/rules/resend-docs.mdc` | Resend doc-search workflow |
+| `.cursor/rules/better-auth-docs.mdc` | Better Auth doc-search workflow |
+| `.cursor/rules/components-package.mdc` | Read-only `@costly/components` — no hand-edits |
 | `.cursor/rules/business-logic-docs.mdc` | Business-logic doc workflow, `docs/` structure, ADR conventions |
 
 Add a new rule file when introducing a new cross-cutting convention that agents should always follow.

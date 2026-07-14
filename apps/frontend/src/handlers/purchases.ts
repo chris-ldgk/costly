@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { authMiddleware } from "#/middlewares/authMiddleware";
 import { optionalAuthMiddleware } from "#/middlewares/optionalAuthMiddleware";
-import { plain } from "#/utils/disposable";
+import { rpcPlain } from "#/utils/disposable";
 
 const createPurchaseInputSchema = z.object({
   name: z.string().min(1),
@@ -14,20 +14,21 @@ const createPurchaseInputSchema = z.object({
 export const getSessionFn = createServerFn({ method: "GET" })
   .middleware([optionalAuthMiddleware])
   .handler(({ context }) => {
-    return plain({ user: context.user });
+    return { user: context.user };
   });
 
 export const createPurchaseFn = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
   .validator(createPurchaseInputSchema)
   .handler(async ({ context, data }) => {
-    const purchase = await context.lib.api.createPurchase(context.user.id, {
-      name: data.name,
-      amountCents: data.amountCents,
-      partnerSharePercent: data.partnerSharePercent,
-      purchasedAt: data.purchasedAt,
-    });
-    return plain(purchase);
+    return rpcPlain(
+      context.lib.api.createPurchase(context.user.id, {
+        name: data.name,
+        amountCents: data.amountCents,
+        partnerSharePercent: data.partnerSharePercent,
+        purchasedAt: data.purchasedAt,
+      }),
+    );
   });
 
 const purchaseIdSchema = z.object({
@@ -38,8 +39,7 @@ export const getPurchaseFn = createServerFn({ method: "GET" })
   .middleware([authMiddleware])
   .validator(purchaseIdSchema)
   .handler(async ({ context, data }) => {
-    const purchase = await context.lib.api.getPurchase(data.purchaseId);
-    return plain(purchase);
+    return rpcPlain(context.lib.api.getPurchase(data.purchaseId));
   });
 
 export const updatePurchaseFn = createServerFn({ method: "POST" })
@@ -54,29 +54,25 @@ export const updatePurchaseFn = createServerFn({ method: "POST" })
   )
   .handler(async ({ context, data }) => {
     const { purchaseId, ...input } = data;
-    const purchase = await context.lib.api.updatePurchase(purchaseId, input);
-    return plain(purchase);
+    return rpcPlain(context.lib.api.updatePurchase(purchaseId, input));
   });
 
 export const getPurchasesFn = createServerFn({ method: "GET" })
   .middleware([authMiddleware])
   .handler(async ({ context }) => {
-    const purchases = await context.lib.api.getPurchases();
-    return plain(purchases);
+    return rpcPlain(context.lib.api.getPurchases());
   });
 
 export const getBalanceFn = createServerFn({ method: "GET" })
   .middleware([authMiddleware])
   .handler(async ({ context }) => {
-    const balance = await context.lib.api.getBalance();
-    return plain(balance);
+    return rpcPlain(context.lib.api.getBalance());
   });
 
 export const settleAllPurchasesFn = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
   .handler(async ({ context }) => {
-    const settlement = await context.lib.api.settleAllPurchases(
-      context.user.id,
+    return rpcPlain(
+      context.lib.api.settleAllPurchases(context.user.id),
     );
-    return plain(settlement);
   });

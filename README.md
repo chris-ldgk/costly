@@ -20,7 +20,7 @@ docs/           # Product and domain documentation
 | -------- | ---------------------------------------------------------------------------------- |
 | Monorepo | Bun workspaces, TypeScript, ESLint                                                 |
 | Runtime  | Cloudflare Workers                                                                 |
-| API      | Hono, Drizzle ORM, better-auth (magic link), PostgreSQL via Hyperdrive             |
+| API      | Hono, Drizzle ORM, better-auth (email OTP), PostgreSQL via Hyperdrive             |
 | Frontend | TanStack Start/Router/Query/Form, React 19, PWA (vite-plugin-pwa), Tailwind CSS v3 |
 | UI       | `@costly/components` (Subframe)                                                    |
 
@@ -28,7 +28,7 @@ docs/           # Product and domain documentation
 
 1. **Database and auth live in the API only** — frontend calls the API via Cloudflare service bindings.
 2. **Purchase data via RPC only** — no public REST API for purchases; auth uses proxied HTTP at `/api/auth/*`.
-3. **Magic-link auth only** — two users seeded from `ALLOWED_USERS`; no public registration.
+3. **Email OTP auth only** — two users seeded from `ALLOWED_USERS`; no public registration.
 4. **Mobile-first PWA** — installable on iOS/Android home screens.
 
 See [`docs/`](./docs/) for product rules and [`.cursor/rules/monorepo-architecture.mdc`](./.cursor/rules/monorepo-architecture.mdc) for technical architecture.
@@ -62,7 +62,7 @@ bun run dev
 
 `VITE_API_URL` is how the browser reaches the API (auth client); it must match `API_PUBLIC_URL` on the API worker. Server-side handlers use the `API` service binding instead.
 
-Open http://localhost:3000, sign in with a seeded email, and check the API console for the magic link in development.
+Open http://localhost:3000, sign in with a seeded email, and check the API console for the OTP in development.
 
 ## Deployment
 

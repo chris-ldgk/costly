@@ -36,7 +36,7 @@ For technical setup (commands, bindings, file layout), see the root [README](../
 ### Domain
 
 - [Purchases & settlements](./domain/purchases.md) — entities, split rule, balance, settlement
-- [Authentication](./domain/auth.md) — magic link, user provisioning, session
+- [Authentication](./domain/auth.md) — email OTP, user provisioning, session
 
 ### Architecture
 

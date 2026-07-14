@@ -47,6 +47,7 @@ Register new MCP servers in `.cursor/mcp.json`. Update `.cursor/rules/documentat
 | Subframe | `subframe`, `subframe-docs` | — | `install`, `design`, `develop` |
 | React Email | — | `react-email-docs.mdc` | `react-email-docs` |
 | Resend | — | `resend-docs.mdc` | `resend-docs` |
+| Better Auth | — | `better-auth-docs.mdc` | `better-auth-docs` |
 
 ## Step 2: Search docs for the specific feature
 

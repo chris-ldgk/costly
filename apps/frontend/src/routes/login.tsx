@@ -1,8 +1,7 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { Button, TextField } from "@costly/components";
 import { authClient } from "#/lib/auth-client";
-import { publicEnv } from "#/utils/env.ts";
 
 export const Route = createFileRoute("/login")({
   beforeLoad: async () => {
@@ -17,30 +16,61 @@ export const Route = createFileRoute("/login")({
   component: LoginPage,
 });
 
+type Step = "email" | "otp";
+
 function LoginPage() {
+  const router = useRouter();
+  const [step, setStep] = useState<Step>("email");
   const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<"idle" | "loading" | "sent" | "error">(
-    "idle",
-  );
+  const [otp, setOtp] = useState("");
+  const [status, setStatus] = useState<"idle" | "loading">("idle");
   const [error, setError] = useState<string | null>(null);
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSendOtp(e: React.FormEvent) {
     e.preventDefault();
     setStatus("loading");
     setError(null);
 
-    const { error: signInError } = await authClient.signIn.magicLink({
+    const { error: sendError } = await authClient.emailOtp.sendVerificationOtp({
       email,
-      callbackURL: new URL(publicEnv.VITE_PUBLIC_URL).toString(),
+      type: "sign-in",
     });
 
-    if (signInError) {
-      setStatus("error");
-      setError(signInError.message ?? "Could not send magic link");
+    if (sendError) {
+      setStatus("idle");
+      setError(sendError.message ?? "Could not send sign-in code");
       return;
     }
 
-    setStatus("sent");
+    setStatus("idle");
+    setStep("otp");
+  }
+
+  async function handleVerifyOtp(e: React.FormEvent) {
+    e.preventDefault();
+    setStatus("loading");
+    setError(null);
+
+    const { error: signInError } = await authClient.signIn.emailOtp({
+      email,
+      otp,
+    });
+
+    if (signInError) {
+      setStatus("idle");
+      setError(signInError.message ?? "Invalid or expired code");
+      return;
+    }
+
+    await router.invalidate();
+    await router.navigate({ to: "/" });
+  }
+
+  function handleChangeEmail() {
+    setStep("email");
+    setOtp("");
+    setError(null);
+    setStatus("idle");
   }
 
   return (
@@ -48,19 +78,16 @@ function LoginPage() {
       <div className="w-full max-w-lg rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
         <h1 className="mb-1 text-2xl font-semibold text-neutral-900">Costly</h1>
         <p className="mb-6 text-sm text-neutral-600">
-          Sign in with a magic link sent to your email.
+          {step === "email"
+            ? "Sign in with a one-time code sent to your email."
+            : `Enter the code sent to ${email}.`}
         </p>
 
-        {status === "sent" ? (
-          <p className="text-sm text-neutral-700">
-            Check your email for a sign-in link. In development, the link is
-            logged in the API console.
-          </p>
-        ) : (
+        {step === "email" ? (
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              void handleSubmit(e);
+              void handleSendOtp(e);
             }}
             className="flex flex-col gap-4"
           >
@@ -89,7 +116,60 @@ function LoginPage() {
               className="w-full"
               disabled={status === "loading"}
             >
-              {status === "loading" ? "Sending…" : "Send magic link"}
+              {status === "loading" ? "Sending…" : "Send code"}
+            </Button>
+          </form>
+        ) : (
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              void handleVerifyOtp(e);
+            }}
+            className="flex flex-col gap-4"
+          >
+            <TextField label="Sign-in code" className="w-full">
+              <TextField.Input
+                type="text"
+                autoComplete="one-time-code"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                maxLength={6}
+                placeholder="123456"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
+                required
+              />
+            </TextField>
+
+            <p className="text-xs text-neutral-500">
+              In development, the code is logged in the API console.
+            </p>
+
+            {error ? (
+              <p className="text-sm text-red-600" role="alert">
+                {error}
+              </p>
+            ) : null}
+
+            <Button
+              type="submit"
+              variant="brand-primary"
+              size="large"
+              className="w-full"
+              disabled={status === "loading" || otp.length < 6}
+            >
+              {status === "loading" ? "Signing in…" : "Sign in"}
+            </Button>
+
+            <Button
+              type="button"
+              variant="neutral-tertiary"
+              size="medium"
+              className="w-full"
+              disabled={status === "loading"}
+              onClick={handleChangeEmail}
+            >
+              Use a different email
             </Button>
           </form>
         )}

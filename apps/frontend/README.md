@@ -5,14 +5,14 @@ TanStack Start **Costly** app — mobile-first PWA for tracking shared purchases
 ## Purpose
 
 - Server-rendered React UI; **purchase data** via Cloudflare service bindings and server functions (RPC).
-- **Auth** from the browser uses `VITE_API_URL` (auth client); same-origin `/api/auth/*` is also proxied to the API worker for magic-link verification on the frontend URL.
+- **Auth** from the browser uses `VITE_API_URL` (email OTP via auth client).
 - Installable as a PWA (vite-plugin-pwa + web manifest).
 
 ## Routes
 
 | Path             | Description                                    |
 | ---------------- | ---------------------------------------------- |
-| `/login`         | Magic-link sign in                             |
+| `/login`         | Email OTP sign in (email → code)               |
 | `/`              | Dashboard — balance, purchase list, settle all |
 | `/purchases/new` | Add a new purchase                             |
 
@@ -46,7 +46,7 @@ Copy `.env.example` → `.env` for local dev bindings:
 
 | Variable | Purpose |
 | --- | --- |
-| `VITE_PUBLIC_URL` | Frontend app URL (magic-link `callbackURL`, post-login redirects) |
+| `VITE_PUBLIC_URL` | Frontend app URL |
 | `VITE_API_URL` | API worker URL — browser access to the API (auth client `baseURL`, HTTP fallback `apiClient`) |
 
 Purchase handlers use the `API` service binding on the server, not `VITE_API_URL`. Set `VITE_API_URL` to match the API worker's `API_PUBLIC_URL` for each environment (local: `http://localhost:8787`; production: `https://costly-api.stizzle.workers.dev`).

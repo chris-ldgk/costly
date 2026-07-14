@@ -1,48 +1,34 @@
 import {
   Body,
-  Button,
   Container,
   Head,
   Heading,
   Html,
-  Link,
   Preview,
   Section,
   Text,
 } from "react-email";
 
-export type MagicLinkEmailProps = {
-  url: string;
+export type OtpEmailProps = {
+  otp: string;
   expiresMinutes?: number;
 };
 
-export function MagicLinkEmail({
-  url,
-  expiresMinutes = 5,
-}: MagicLinkEmailProps) {
+export function OtpEmail({ otp, expiresMinutes = 5 }: OtpEmailProps) {
   return (
     <Html lang="en">
       <Head />
-      <Preview>Your Costly sign-in link</Preview>
+      <Preview>Your Costly sign-in code: {otp}</Preview>
       <Body style={body}>
         <Container style={container}>
           <Heading style={heading}>Sign in to Costly</Heading>
           <Text style={text}>
-            Tap the button below to sign in. This link expires in{" "}
-            {expiresMinutes} minutes and can only be used once.
+            Enter this one-time code to sign in. It expires in {expiresMinutes}{" "}
+            minutes.
           </Text>
-          <Section style={buttonSection}>
-            <Button href={url} style={button}>
-              Sign in
-            </Button>
+          <Section style={codeSection}>
+            <Text style={code}>{otp}</Text>
           </Section>
-          <Text style={text}>
-            If the button does not work, copy and paste this link into your
-            browser:
-          </Text>
-          <Link href={url} style={link}>
-            {url}
-          </Link>
           <Text style={footer}>
             If you did not request this email, you can safely ignore it.
           </Text>
@@ -52,7 +38,7 @@ export function MagicLinkEmail({
   );
 }
 
-export default MagicLinkEmail;
+export default OtpEmail;
 
 const body = {
   backgroundColor: "#f6f6f6",
@@ -83,28 +69,23 @@ const text = {
   margin: "0 0 16px",
 };
 
-const buttonSection = {
+const codeSection = {
   margin: "24px 0",
-};
-
-const button = {
-  backgroundColor: "#111111",
-  borderRadius: "6px",
-  color: "#ffffff",
-  display: "inline-block",
-  fontSize: "15px",
-  fontWeight: "600",
-  lineHeight: "1",
-  padding: "14px 24px",
-  textDecoration: "none",
   textAlign: "center" as const,
 };
 
-const link = {
-  color: "#2563eb",
-  fontSize: "13px",
-  lineHeight: "20px",
-  wordBreak: "break-all" as const,
+const code = {
+  backgroundColor: "#f3f4f6",
+  borderRadius: "8px",
+  color: "#111111",
+  display: "inline-block",
+  fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
+  fontSize: "32px",
+  fontWeight: "700",
+  letterSpacing: "0.25em",
+  lineHeight: "1",
+  margin: "0",
+  padding: "20px 28px",
 };
 
 const footer = {

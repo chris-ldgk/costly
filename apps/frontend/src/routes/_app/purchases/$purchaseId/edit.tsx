@@ -158,7 +158,7 @@ function EditPurchasePage() {
                 type="date"
                 value={field.state.value}
                 onChange={(e) => field.handleChange(e.target.value)}
-                className="h-full w-full border-none bg-transparent px-1 text-body font-body text-default-font outline-none"
+                className="h-full w-full border-none bg-transparent px-1 text-base font-body text-default-font outline-none"
               />
             </TextField>
           )}

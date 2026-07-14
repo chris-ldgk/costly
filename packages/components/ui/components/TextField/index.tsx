@@ -1,10 +1,27 @@
 "use client";
-import { TextField as TextFieldComponent } from "./TextField";
+// @subframe/sync-disable
+import React from "react";
+import { TextField as TextFieldBase } from "./TextField";
+import type { InputProps } from "./TextField";
+import * as SubframeUtils from "../../utils";
+
+/** Original Input — capture before Object.assign replaces TextFieldBase.Input. */
+const BaseInput = TextFieldBase.Input;
 
 /**
- * Add wrapper components and business logic here.
- * If you modify this file, disable Subframe sync for it to prevent overwrites.
- * Learn more: https://docs.subframe.com/concepts/syncing-components#wrapping-components
+ * TextField wrapper — 16px input text prevents iOS Safari focus zoom.
  */
+const Input = React.forwardRef<HTMLInputElement, InputProps>(function Input(
+  { className, ...props },
+  ref,
+) {
+  return (
+    <BaseInput
+      ref={ref}
+      className={SubframeUtils.twClassNames("text-base", className)}
+      {...props}
+    />
+  );
+});
 
-export const TextField = TextFieldComponent;
+export const TextField = Object.assign(TextFieldBase, { Input });

@@ -12,8 +12,8 @@ Exactly two pre-configured users (typically a couple). Accounts are created from
 
 1. User opens Costly (browser or installed PWA).
 2. Enters their email on `/login`.
-3. Receives a magic link by email (logged to console in development).
-4. Clicks the link → authenticated session → redirected to the dashboard.
+3. Receives a 6-digit sign-in code by email (logged to API console in development).
+4. Enters the code on `/login` → authenticated session → redirected to the dashboard.
 
 ### Log a purchase
 

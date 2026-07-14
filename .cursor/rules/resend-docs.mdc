@@ -31,11 +31,11 @@ Official docs: https://resend.com/docs
 
 ## Conventions in this repo
 
-- Resend is used only in `apps/api` for magic-link auth emails.
+- Resend is used only in `apps/api` for email OTP auth emails.
 - `RESEND_API_KEY` is a Worker secret (`.env` locally, dashboard in production).
 - `RESEND_FROM_EMAIL` is a Worker var (verified sender, e.g. `Costly <login@yourdomain.com>`).
 - Send helpers live in `apps/api/src/emails/`; pass React Email components via the `react` field on `resend.emails.send`.
-- In development (`NODE_ENV=development`), magic links are logged to the console — Resend is not called.
+- In development (`NODE_ENV=development`), OTP codes are logged to the console — Resend is not called.
 
 ## Notes
 

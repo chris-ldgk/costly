@@ -1,11 +1,13 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "@better-auth/drizzle-adapter";
-import { magicLink } from "better-auth/plugins";
+import { emailOTP } from "better-auth/plugins";
 import type { Lib } from "../utils/lib";
 import { authSchema } from "../schema";
 import { parseAllowedUsers } from "./allowed-users";
-import { sendMagicLinkEmail } from "../emails/send-magic-link";
+import { sendOtpEmail } from "../emails/send-otp";
 import { getAuthAdvancedOptions, getTrustedOrigins } from "./options";
+
+const OTP_EXPIRES_MINUTES = 5;
 
 export function createAuth(lib: Lib) {
   const { env, db } = lib;
@@ -26,28 +28,34 @@ export function createAuth(lib: Lib) {
       enabled: false,
     },
     plugins: [
-      magicLink({
+      emailOTP({
         disableSignUp: true,
-        sendMagicLink: async ({ email, url }) => {
+        expiresIn: OTP_EXPIRES_MINUTES * 60,
+        async sendVerificationOTP({ email, otp, type }) {
+          if (type !== "sign-in") {
+            return;
+          }
+
           if (!allowedEmails.has(email.toLowerCase())) {
             throw new Error("Email not allowed");
           }
-          console.log(`[Costly] Magic link for ${email}: ${url}`);
+
+          console.log(`[Costly] Sign-in OTP for ${email}: ${otp}`);
+
           if (env.NODE_ENV === "development") {
             return;
           }
 
           if (!env.RESEND_API_KEY) {
-            throw new Error(
-              "RESEND_API_KEY is required to send magic link emails",
-            );
+            throw new Error("RESEND_API_KEY is required to send OTP emails");
           }
 
-          await sendMagicLinkEmail({
+          await sendOtpEmail({
             apiKey: env.RESEND_API_KEY,
             from: env.RESEND_FROM_EMAIL,
             to: email,
-            url,
+            otp,
+            expiresMinutes: OTP_EXPIRES_MINUTES,
           });
         },
       }),

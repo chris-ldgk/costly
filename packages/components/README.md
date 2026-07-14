@@ -1,6 +1,8 @@
 # @costly/components
 
-Shared UI component library for the monorepo. Components are **generated and synced from [Subframe](https://subframe.com)** — do not hand-author files in `ui/components/`. Customizations belong in wrapper `index.tsx` files.
+Shared UI component library for the monorepo. Components are **generated and synced from [Subframe](https://subframe.com)**.
+
+**Agents: do not edit this package.** See [`.cursor/rules/components-package.mdc`](../../.cursor/rules/components-package.mdc). Customize UI in `apps/frontend/` instead.
 
 ## Purpose
 
@@ -39,7 +41,7 @@ Sync components from Subframe:
 bun run sync
 ```
 
-Use `// @subframe/sync-disable` in wrapper files to protect customizations from being overwritten.
+Use Subframe sync to update components — do not hand-edit files in this package.
 
 ## Scripts
 
