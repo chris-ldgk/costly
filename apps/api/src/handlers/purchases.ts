@@ -2,7 +2,9 @@ import type { Lib } from "../utils/lib";
 import { desc, eq, isNull } from "drizzle-orm";
 import {
   createPurchaseInputSchema,
+  purchaseListQuerySchema,
   type CreatePurchaseInput,
+  type PurchaseListQuery,
   type UpdatePurchaseInput,
 } from "../schema";
 
@@ -25,20 +27,39 @@ export async function createPurchase(
   return purchase;
 }
 
-export async function getPurchases(lib: Lib) {
-  const purchases = await lib.db.query.purchases.findMany({
+export async function getPurchases(
+  lib: Lib,
+  query: PurchaseListQuery = purchaseListQuerySchema.parse({}),
+) {
+  const { limit, offset } = purchaseListQuerySchema.parse(query);
+
+  const rows = await lib.db.query.purchases.findMany({
+    with: {
+      createdBy: true,
+      settlement: true,
+    },
+    orderBy: (purchases, { desc }) => [desc(purchases.purchasedAt)],
+    limit: limit + 1,
+    offset,
+  });
+
+  const hasMore = rows.length > limit;
+  return {
+    purchases: hasMore ? rows.slice(0, limit) : rows,
+    hasMore,
+  };
+}
+
+export async function getPurchase(lib: Lib, purchaseId: string) {
+  const purchase = await lib.db.query.purchases.findFirst({
+    where: {
+      id: purchaseId,
+    },
     with: {
       createdBy: true,
       settlement: true,
     },
   });
-  return purchases.sort(
-    (a, b) => b.purchasedAt.getTime() - a.purchasedAt.getTime(),
-  );
-}
-
-export async function getPurchase(lib: Lib, purchaseId: string) {
-  const purchase = (await getPurchases(lib)).find((item) => item.id === purchaseId);
   if (!purchase) {
     throw new Error("Purchase not found");
   }

@@ -69,3 +69,14 @@ Either user may edit a purchase's `name`, `amountCents`, `partnerSharePercent`, 
 
 - Amounts shown in EUR with two decimal places (`de-DE` locale).
 - Dates shown in the user's local timezone.
+
+## Purchase list (overview)
+
+The purchases overview loads **20 items per page** (`limit` + `offset`), newest first by `purchasedAt`. The API returns `{ purchases, hasMore }`; the UI shows a **Load more** button when `hasMore` is true.
+
+| Parameter | Default | Rule |
+| --- | --- | --- |
+| `limit` | 20 | 1–100 |
+| `offset` | 0 | Non-negative skip count |
+
+Balance calculation always uses **all** unsettled purchases — pagination applies only to the list view.

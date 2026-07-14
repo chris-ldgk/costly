@@ -12,7 +12,7 @@ import {
   updatePurchase,
 } from "./handlers/purchases";
 import { seedUsers } from "./handlers/seed-users";
-import type { CreatePurchaseInput, UpdatePurchaseInput } from "./schema";
+import type { CreatePurchaseInput, PurchaseListQuery, UpdatePurchaseInput } from "./schema";
 
 export default {
   fetch: appRouter.fetch,
@@ -48,12 +48,9 @@ export class FrontendEntrypoint extends WorkerEntrypoint {
     return createPurchase(lib, userId, input);
   }
 
-  async getPurchases() {
+  async getPurchases(query: PurchaseListQuery) {
     const lib = this.createLib();
-    const purchases = await getPurchases(lib);
-    return purchases.sort(
-      (a, b) => b.purchasedAt.getTime() - a.purchasedAt.getTime(),
-    );
+    return getPurchases(lib, query);
   }
 
   async getPurchase(purchaseId: string) {
