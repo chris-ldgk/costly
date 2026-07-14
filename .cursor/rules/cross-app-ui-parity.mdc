@@ -1,0 +1,74 @@
+---
+description: Keep web frontend and mobile app UI in sync — mirror user-facing changes in both apps
+alwaysApply: true
+---
+
+# Cross-App UI Parity
+
+Costly has two user-facing clients with the same product flows:
+
+| App | UI locations |
+| --- | --- |
+| Web (`apps/frontend`) | `src/routes/`, `src/components/` |
+| Mobile (`apps/mobile`) | `app/`, `src/components/` |
+
+**Any user-facing UI change in one app must also be made in the other** in the same task, unless the user explicitly scopes the work to a single platform.
+
+## What counts as a UI change
+
+Mirror changes that affect what users see or do:
+
+- Screens, routes, navigation, and layout
+- Forms, fields, labels, placeholders, and validation messages
+- Buttons, actions, empty states, loading/error states
+- New, removed, or renamed user-facing features or flows
+- Shared interaction patterns (e.g. partner share slider, purchase create/edit)
+
+## What does not require mirroring
+
+- API handlers, schema, and server-only logic (`apps/api`, frontend server functions that do not change UX)
+- Platform-specific plumbing (Expo Secure Store, service bindings, SSR loaders)
+- Styling that only adapts to the platform (Tailwind/Subframe on web vs React Native primitives on mobile)
+
+Behavior and copy should match; visual implementation may differ per platform.
+
+## Counterpart mapping
+
+Before finishing, find the equivalent surface in the other app:
+
+| Web | Mobile |
+| --- | --- |
+| `apps/frontend/src/routes/_app/purchases/new.tsx` | `apps/mobile/app/(tabs)/purchases/new.tsx` |
+| `apps/frontend/src/routes/_app/purchases/$purchaseId/edit.tsx` | `apps/mobile/app/(tabs)/purchases/[purchaseId]/edit.tsx` |
+| `apps/frontend/src/components/` | `apps/mobile/src/components/` |
+
+When adding a new screen or component, create the counterpart in the other app using that app's conventions.
+
+## Workflow
+
+1. **Identify** — which user-facing behavior changed?
+2. **Locate** — find the equivalent route, screen, or component in the other app.
+3. **Implement** — apply the same behavior, fields, validation, and copy in both apps.
+4. **Verify** — run lint/typecheck for both `frontend` and `@costly/mobile` when either is touched.
+
+## When unsure, ask the user
+
+Do not guess platform scope or implementation. Ask before proceeding when:
+
+- No clear counterpart exists yet in the other app
+- The change is platform-specific but might still affect product behavior (e.g. native-only control with no web equivalent)
+- UX should differ between web and mobile and you need guidance on how
+- The user asked for a change in only one app and parity is ambiguous
+
+Example questions:
+
+- "Should this new purchase field also appear on mobile, or is it web-only?"
+- "Mobile has no equivalent to X — should I add a simplified version or skip mobile for now?"
+
+## Completion criteria
+
+A UI task is not done if:
+
+- A user-facing change landed in one app but not the other (without explicit user approval)
+- New screens or flows exist in only one client
+- Copy, validation rules, or form fields diverge between apps without a documented reason

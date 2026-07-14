@@ -1,5 +1,6 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "@better-auth/drizzle-adapter";
+import { expo } from "@better-auth/expo";
 import { emailOTP } from "better-auth/plugins";
 import type { Lib } from "../utils/lib";
 import { authSchema } from "../schema";
@@ -28,6 +29,7 @@ export function createAuth(lib: Lib) {
       enabled: false,
     },
     plugins: [
+      expo(),
       emailOTP({
         disableSignUp: true,
         expiresIn: OTP_EXPIRES_MINUTES * 60,

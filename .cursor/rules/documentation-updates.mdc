@@ -28,6 +28,7 @@ Product behavior, domain rules, and app-level architecture decisions live in `do
 | `README.md` | Monorepo structure, stack, core principles, root scripts, getting started |
 | `apps/api/README.md` | API layout, routes, handlers, schema, DB scripts, bindings, RPC entrypoints |
 | `apps/frontend/README.md` | Frontend layout, routing, server functions, data-fetching patterns, dev commands |
+| `apps/mobile/README.md` | Expo layout, routing, auth client, API client, dev commands |
 | `packages/api-client/README.md` | Client usage, type inference, when to use HTTP vs service binding |
 | `packages/components/README.md` | Subframe sync, component conventions, exports, Tailwind preset |
 
@@ -48,8 +49,10 @@ Update the README closest to the change. If a change affects multiple workspaces
 | `.cursor/rules/react-email-docs.mdc` | React Email doc-search workflow |
 | `.cursor/rules/resend-docs.mdc` | Resend doc-search workflow |
 | `.cursor/rules/better-auth-docs.mdc` | Better Auth doc-search workflow |
+| `.cursor/rules/react-native-docs.mdc` | Expo / React Native doc-search workflow |
 | `.cursor/rules/components-package.mdc` | Read-only `@costly/components` — no hand-edits |
 | `.cursor/rules/business-logic-docs.mdc` | Business-logic doc workflow, `docs/` structure, ADR conventions |
+| `.cursor/rules/cross-app-ui-parity.mdc` | Web/mobile UI parity workflow, counterpart mapping, when to ask the user |
 
 Add a new rule file when introducing a new cross-cutting convention that agents should always follow.
 

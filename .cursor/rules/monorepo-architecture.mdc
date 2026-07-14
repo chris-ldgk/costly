@@ -5,7 +5,7 @@ alwaysApply: true
 
 # Monorepo Architecture
 
-Bun workspaces monorepo (`@costly/monorepo`). Two apps, two shared packages.
+Bun workspaces monorepo (`@costly/monorepo`). Three apps, two shared packages.
 
 ## Apps
 
@@ -21,7 +21,7 @@ apps/api/src/
 ├── middlewares/          # Hono middleware (injects Lib: db, kv, bucket, env)
 ├── routers/              # Hono HTTP routes
 │   ├── index.ts          # appRouter → /api
-│   └── api/v1/           # Versioned resource routers (books, authors, …)
+│   └── api/v1/           # Versioned resource routers (purchases, balance, …)
 ├── schema/               # Drizzle tables, relations, Zod schemas
 └── utils/                # env, id generation, getLib()
 ```
@@ -50,6 +50,25 @@ apps/frontend/src/
 
 **Service binding:** `cfEnv.API` → `FrontendEntrypoint` on `costly-api` (see `wrangler.jsonc`).
 
+### `apps/mobile` (`@costly/mobile`)
+
+Expo Router native iOS app.
+
+```
+apps/mobile/
+├── app/                  # Expo Router screens (login, tabs)
+└── src/
+    ├── lib/              # auth-client, api-client, purchases helpers
+    ├── components/       # RN UI primitives (not @costly/components)
+    └── utils/            # format, balance text
+```
+
+**Import alias:** `@/*` → `./src/*`.
+
+**Data flow:** TanStack Query → `@costly/api-client` (HTTP `/api/v1/*`) with Better Auth session cookies.
+
+**Auth:** `@better-auth/expo` + `expo-secure-store`; deep link scheme `costly://`.
+
 ## Packages
 
 ### `packages/api-client` (`@costly/api-client`)
@@ -59,10 +78,12 @@ Automatic type-safe Hono RPC client. **Not codegen** — types are inferred at c
 ```typescript
 import { createApiClient } from "@costly/api-client";
 const client = createApiClient(apiUrl);
-// client.api.v1.books.$get({ query: { limit: 10 } })
+// client.api.v1.purchases.$get({ query: { limit: 20, offset: 0 } })
 ```
 
-Use only when client-side HTTP fetch is genuinely needed. Prefer server functions + service binding.
+**Web frontend:** prefer server functions + service binding.
+
+**Mobile app:** primary data path — authenticated client with cookies from Better Auth Expo.
 
 ### `packages/components` (`@costly/components`)
 
@@ -108,9 +129,9 @@ Every public API endpoint has **two** entry points sharing the same handler:
 | RPC | `FrontendEntrypoint` method in `index.ts` | Frontend via service binding |
 
 ```
-handlers/getAuthors()          ← shared business logic
-    ├── routers/api/v1/authors.ts   ← Hono .get("/", …)
-    └── FrontendEntrypoint.getAuthors()  ← RPC method
+handlers/getPurchases()        ← shared business logic
+    ├── routers/api/v1/purchases.ts   ← Hono HTTP (mobile)
+    └── FrontendEntrypoint.getPurchases()  ← RPC (web)
 ```
 
 When adding a resource, always create both the Hono route and the `FrontendEntrypoint` method.
@@ -163,5 +184,5 @@ Use `@costly/components` for UI primitives and layouts. New custom components in
 3. **Hono router** — `apps/api/src/routers/api/v1/<resource>.ts` + mount in `v1/index.ts`
 4. **RPC methods** — add to `FrontendEntrypoint` in `apps/api/src/index.ts`
 5. **Server functions** — `apps/frontend/src/handlers/<resource>.ts`
-6. **Route** — `apps/frontend/src/routes/...` with loader + useQuery pattern
+6. **Route** — `apps/frontend/src/routes/...` with loader + useQuery pattern (web) or `apps/mobile/app/...` with TanStack Query (mobile)
 7. **Regenerate types** — `bun run cf-typegen` in both apps after binding changes

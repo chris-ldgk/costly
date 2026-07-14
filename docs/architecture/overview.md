@@ -14,8 +14,9 @@ This project separates **product architecture** (documented here and in sibling 
 
 ## Current stack (implementation)
 
-- **API** (`apps/api`) — sole owner of database and external services
-- **Frontend** (`apps/frontend`) — SSR UI; server functions call the API via Cloudflare service bindings; browser auth uses `VITE_API_URL`
-- **Shared packages** — typed HTTP client and UI components
+- **API** (`apps/api`) — sole owner of database and external services; auth at `/api/auth/*`, purchases at RPC + `/api/v1/*`
+- **Frontend** (`apps/frontend`) — SSR PWA; server functions call the API via Cloudflare service bindings; browser auth uses `VITE_API_URL`
+- **Mobile** (`apps/mobile`) — Expo iOS app; auth and purchases via HTTP using `@costly/api-client`
+- **Shared packages** — typed HTTP client (`@costly/api-client`) and web UI components (`@costly/components`)
 
 When adding a new bounded context, integration, or data store, document the decision in `docs/decisions/` and update this file if boundaries change.

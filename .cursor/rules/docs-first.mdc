@@ -48,6 +48,7 @@ Register new MCP servers in `.cursor/mcp.json`. Update `.cursor/rules/documentat
 | React Email | — | `react-email-docs.mdc` | `react-email-docs` |
 | Resend | — | `resend-docs.mdc` | `resend-docs` |
 | Better Auth | — | `better-auth-docs.mdc` | `better-auth-docs` |
+| Expo / React Native | — | `react-native-docs.mdc` | `react-native-docs` |
 
 ## Step 2: Search docs for the specific feature
 

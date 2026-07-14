@@ -48,7 +48,16 @@ The `from` address must use a domain verified in the Resend dashboard. Template:
 - The browser auth client (`apps/frontend/src/lib/auth-client.ts`) calls the API at `VITE_API_URL` (must match the API worker's `API_PUBLIC_URL` per environment).
 - The frontend worker also proxies same-origin `/api/auth/*` to the API via the `API` service binding.
 - Session cookies are shared across frontend and API origins via `crossSubDomainCookies` (see env vars below).
-- Protected routes and server functions require a valid session (validated via RPC `getSession`, not `VITE_API_URL`).
+- Protected routes and server functions require a valid session (validated via RPC `getSession` on web, or session cookie on HTTP `/api/v1/*` for mobile).
+
+## Mobile (Expo)
+
+- Native iOS app in `apps/mobile` using Better Auth Expo (`@better-auth/expo`).
+- Auth client stores session cookies in `expo-secure-store` via the Expo client plugin.
+- Deep link scheme: `costly://` — must be listed in API `trustedOrigins`.
+- Purchase data fetched via `@costly/api-client` (Hono RPC client) with cookies attached from `authClient.getCookie()`.
+- Mobile calls the API directly at `EXPO_PUBLIC_API_URL` (same value as web `VITE_API_URL`).
+- Same email OTP flow as web: send code → enter OTP → session established.
 
 ## Frontend ↔ API URLs
 

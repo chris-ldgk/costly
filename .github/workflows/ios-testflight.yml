@@ -1,0 +1,47 @@
+name: iOS TestFlight
+
+on:
+  push:
+    tags:
+      - mobile-v*
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Release version (e.g. 1.0.0)
+        required: true
+        type: string
+
+concurrency:
+  group: ios-testflight-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  resolve-version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.resolve.outputs.version }}
+    steps:
+      - name: Resolve version
+        id: resolve
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION="${GITHUB_REF_NAME#mobile-v}"
+          fi
+
+          if [ -z "$VERSION" ]; then
+            echo "Could not resolve release version"
+            exit 1
+          fi
+
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Release version: $VERSION"
+
+  testflight:
+    needs: resolve-version
+    uses: ./.github/workflows/_ios-build-release.yml
+    secrets: inherit
+    with:
+      version: ${{ needs.resolve-version.outputs.version }}
+      deploy_testflight: true

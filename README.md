@@ -6,11 +6,12 @@ A private, mobile-first PWA for two people to track shared purchases and settle 
 
 ```
 apps/
-  api/          # Cloudflare Worker — database, auth, purchase RPC
+  api/          # Cloudflare Worker — database, auth, purchase RPC + HTTP v1
   frontend/     # TanStack Start app — mobile-first PWA UI
+  mobile/       # Expo iOS app — HTTP client via @costly/api-client
 packages/
-  api-client/   # Type-safe Hono RPC client (unused for Costly business logic)
-  components/   # Shared UI library (Subframe-generated)
+  api-client/   # Type-safe Hono RPC client (mobile + external HTTP access)
+  components/   # Shared UI library (Subframe-generated, web only)
 docs/           # Product and domain documentation
 ```
 
@@ -22,14 +23,15 @@ docs/           # Product and domain documentation
 | Runtime  | Cloudflare Workers                                                                 |
 | API      | Hono, Drizzle ORM, better-auth (email OTP), PostgreSQL via Hyperdrive             |
 | Frontend | TanStack Start/Router/Query/Form, React 19, PWA (vite-plugin-pwa), Tailwind CSS v3 |
-| UI       | `@costly/components` (Subframe)                                                    |
+| Mobile   | Expo Router, React Native, TanStack Query, NativeWind                              |
+| UI       | `@costly/components` (Subframe, web); custom RN components (mobile)                |
 
 ## Core principles
 
-1. **Database and auth live in the API only** — frontend calls the API via Cloudflare service bindings.
-2. **Purchase data via RPC only** — no public REST API for purchases; auth uses proxied HTTP at `/api/auth/*`.
+1. **Database and auth live in the API only** — frontend uses service bindings; mobile uses HTTP.
+2. **Dual purchase access** — RPC for web server functions; authenticated HTTP `/api/v1/*` for mobile.
 3. **Email OTP auth only** — two users seeded from `ALLOWED_USERS`; no public registration.
-4. **Mobile-first PWA** — installable on iOS/Android home screens.
+4. **Mobile-first** — PWA (web) and native iOS app (Expo).
 
 See [`docs/`](./docs/) for product rules and [`.cursor/rules/monorepo-architecture.mdc`](./.cursor/rules/monorepo-architecture.mdc) for technical architecture.
 
@@ -63,6 +65,16 @@ bun run dev
 `VITE_API_URL` is how the browser reaches the API (auth client); it must match `API_PUBLIC_URL` on the API worker. Server-side handlers use the `API` service binding instead.
 
 Open http://localhost:3000, sign in with a seeded email, and check the API console for the OTP in development.
+
+### Mobile (Expo iOS)
+
+```bash
+cd apps/mobile
+cp .env.example .env   # EXPO_PUBLIC_API_URL
+bun run ios
+```
+
+Set `EXPO_PUBLIC_API_URL` to the API worker URL (same as `VITE_API_URL`, e.g. `http://localhost:8787`). The API must be running for auth and data.
 
 ## Deployment
 

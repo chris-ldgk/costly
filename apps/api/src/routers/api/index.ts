@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { libMiddleware } from "../../middlewares/lib";
 import { createAuth } from "../../auth";
+import { v1Router } from "./v1";
 
 export const apiRouter = new Hono()
   .use(libMiddleware)
@@ -10,7 +11,7 @@ export const apiRouter = new Hono()
     const { env } = lib;
     const middleware = cors({
       origin: env.CORS_ORIGINS,
-      allowHeaders: ["Content-Type", "Authorization"],
+      allowHeaders: ["Content-Type", "Authorization", "Cookie"],
       allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
       credentials: true,
     });
@@ -19,6 +20,7 @@ export const apiRouter = new Hono()
   .on(["GET", "POST"], "/auth/*", (c) => {
     const auth = createAuth(c.get("lib"));
     return auth.handler(c.req.raw);
-  });
+  })
+  .route("/v1", v1Router);
 
 export type ApiRouter = typeof apiRouter;

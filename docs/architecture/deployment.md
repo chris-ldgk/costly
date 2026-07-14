@@ -73,9 +73,11 @@ The frontend build produces the Worker assets TanStack Start needs. Set `VITE_*`
 | Task | How it runs |
 | --- | --- |
 | Production DB migrations | GitHub Actions — [`.github/workflows/migrate-production.yml`](../../.github/workflows/migrate-production.yml) |
+| iOS GitHub Release | GitHub Actions — [`.github/workflows/ios-release.yml`](../../.github/workflows/ios-release.yml) (manual dispatch) |
+| iOS TestFlight | GitHub Actions — [`.github/workflows/ios-testflight.yml`](../../.github/workflows/ios-testflight.yml) on `mobile-v*` tag or manual dispatch |
 | Local development | `bun run dev` / `bun run dev:scheduled` in each app |
 
-See [database connectivity](./database-connectivity.md) for migration CI setup.
+See [database connectivity](./database-connectivity.md) for migration CI setup. See [`apps/mobile/README.md`](../../apps/mobile/README.md) for iOS release secrets and one-time EAS setup.
 
 ## Local development vs production
 

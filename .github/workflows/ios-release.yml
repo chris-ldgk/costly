@@ -1,0 +1,40 @@
+name: iOS release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Release version (e.g. 1.0.0)
+        required: true
+        type: string
+
+concurrency:
+  group: ios-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  resolve-version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.resolve.outputs.version }}
+    steps:
+      - name: Resolve version
+        id: resolve
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+
+          if [ -z "$VERSION" ]; then
+            echo "Could not resolve release version"
+            exit 1
+          fi
+
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Release version: $VERSION"
+
+  release:
+    needs: resolve-version
+    uses: ./.github/workflows/_ios-build-release.yml
+    secrets: inherit
+    with:
+      version: ${{ needs.resolve-version.outputs.version }}
+      deploy_testflight: false

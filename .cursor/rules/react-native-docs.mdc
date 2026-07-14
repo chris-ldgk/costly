@@ -1,0 +1,53 @@
+---
+description: How to search Expo and React Native documentation
+alwaysApply: false
+---
+
+# React Native / Expo Documentation
+
+Use current Expo and React Native docs — do not rely on training data for API details.
+
+## Priority 1: Context7 MCP
+
+Use Context7 `resolve-library-id` then `query-docs`:
+
+| Source | Preferred Context7 library ID |
+| --- | --- |
+| Expo | `/expo/expo` |
+| Expo docs site | `/websites/expo_dev` |
+| React Native | `/facebook/react-native` |
+| Better Auth (Expo integration) | `/better-auth/better-auth` |
+
+Pass the user's full question as the `query` parameter. Be specific:
+
+- ❌ "Expo Router docs"
+- ✅ "Expo Router tabs layout auth redirect protected routes"
+
+## Priority 2: Direct sources (shell fallback)
+
+```bash
+# Expo doc indexes
+curl -s https://docs.expo.dev/llms.txt
+curl -s https://docs.expo.dev/llms-full.txt
+
+# React Native
+curl -s https://reactnative.dev/llms.txt
+
+# Better Auth Expo integration
+curl -sH "Accept: text/markdown" https://www.better-auth.com/docs/integrations/expo
+```
+
+## Repo conventions
+
+- Mobile app: `apps/mobile` — Expo Router, NativeWind, TanStack Query
+- Auth: `apps/mobile/src/lib/auth-client.ts` — `better-auth/react` + `@better-auth/expo/client` + `expo-secure-store`
+- API data: `apps/mobile/src/lib/api-client.ts` — `@costly/api-client` with cookies from `authClient.getCookie()`
+- Env: `EXPO_PUBLIC_API_URL` (same value as web `VITE_API_URL`)
+- Deep link scheme: `costly` in `app.json`
+- UI: custom RN components in `apps/mobile/src/components/` — do not use `@costly/components` (web/Subframe only)
+
+## Notes
+
+- Native fetch does not enforce browser CORS, but session cookies still require the Better Auth Expo plugin.
+- For monorepo setup, see Expo docs on [monorepos](https://docs.expo.dev/guides/monorepos/).
+- Search Better Auth Expo docs when changing mobile auth or cookie forwarding to the Hono client.

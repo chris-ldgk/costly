@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted
+Superseded by [2026-07-14 — HTTP API for mobile](./2026-07-14-http-api-and-mobile.md) for purchase REST access. Auth proxy and `/api/auth/*` decisions remain in effect for the web frontend.
 
 ## Context
 

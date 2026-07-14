@@ -1,0 +1,122 @@
+name: iOS build and release
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        description: App version (e.g. 1.0.0)
+        required: true
+        type: string
+      deploy_testflight:
+        description: Submit the build to TestFlight after creating the GitHub release
+        required: true
+        type: boolean
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Setup Expo and EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Set app version
+        working-directory: apps/mobile
+        run: |
+          VERSION="${{ inputs.version }}"
+          jq --arg version "$VERSION" '.expo.version = $version' app.json > app.json.tmp
+          mv app.json.tmp app.json
+          echo "Set expo.version to $VERSION"
+
+      - name: Build iOS on EAS
+        id: build
+        working-directory: apps/mobile
+        run: |
+          eas build \
+            --platform ios \
+            --profile production \
+            --non-interactive \
+            --wait \
+            --json > "$RUNNER_TEMP/build.json"
+
+          BUILD_ID=$(jq -r 'if type == "array" then .[0].id else .id end' "$RUNNER_TEMP/build.json")
+          if [ -z "$BUILD_ID" ] || [ "$BUILD_ID" = "null" ]; then
+            echo "Failed to parse build ID from EAS output:"
+            cat "$RUNNER_TEMP/build.json"
+            exit 1
+          fi
+
+          echo "build_id=$BUILD_ID" >> "$GITHUB_OUTPUT"
+          echo "EAS build ID: $BUILD_ID"
+
+      - name: Download IPA
+        id: download
+        working-directory: apps/mobile
+        run: |
+          eas build:download \
+            --build-id "${{ steps.build.outputs.build_id }}" \
+            --non-interactive
+
+          IPA_PATH=$(find . -maxdepth 1 -name '*.ipa' -print -quit)
+          if [ -z "$IPA_PATH" ]; then
+            echo "No IPA file found after download"
+            exit 1
+          fi
+
+          VERSION="${{ inputs.version }}"
+          RELEASE_IPA="Costly-${VERSION}-ios.ipa"
+          mv "$IPA_PATH" "$RELEASE_IPA"
+          echo "release_ipa=$RELEASE_IPA" >> "$GITHUB_OUTPUT"
+          echo "Downloaded and renamed to $RELEASE_IPA"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: mobile-v${{ inputs.version }}
+          name: Costly iOS ${{ inputs.version }}
+          body: |
+            ## Costly iOS ${{ inputs.version }}
+
+            - **EAS build ID:** ${{ steps.build.outputs.build_id }}
+            - **Commit:** ${{ github.sha }}
+            - **EAS dashboard:** https://expo.dev/builds/${{ steps.build.outputs.build_id }}
+
+            Signed IPA attached below.
+          files: apps/mobile/${{ steps.download.outputs.release_ipa }}
+          draft: false
+          prerelease: false
+
+      - name: Configure App Store Connect API key
+        if: inputs.deploy_testflight
+        run: |
+          echo "${{ secrets.ASC_API_KEY_BASE64 }}" | base64 --decode > "$RUNNER_TEMP/AuthKey.p8"
+          echo "EXPO_ASC_API_KEY_PATH=$RUNNER_TEMP/AuthKey.p8" >> "$GITHUB_ENV"
+          echo "EXPO_ASC_KEY_ID=${{ secrets.ASC_API_KEY_ID }}" >> "$GITHUB_ENV"
+          echo "EXPO_ASC_ISSUER_ID=${{ secrets.ASC_ISSUER_ID }}" >> "$GITHUB_ENV"
+          echo "EXPO_APPLE_TEAM_ID=${{ secrets.APPLE_TEAM_ID }}" >> "$GITHUB_ENV"
+          echo "EXPO_APPLE_TEAM_TYPE=${{ secrets.APPLE_TEAM_TYPE }}" >> "$GITHUB_ENV"
+
+      - name: Submit to TestFlight
+        if: inputs.deploy_testflight
+        working-directory: apps/mobile
+        run: |
+          eas submit \
+            --platform ios \
+            --id "${{ steps.build.outputs.build_id }}" \
+            --profile production \
+            --non-interactive \
+            --wait

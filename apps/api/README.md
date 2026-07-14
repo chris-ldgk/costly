@@ -1,17 +1,31 @@
 # @costly/api
 
-Cloudflare Worker backend for **Costly** — auth, database access, and purchase RPC.
+Cloudflare Worker backend for **Costly** — auth, database access, purchase RPC, and HTTP v1 API.
 
 ## Purpose
 
 - The **only** workspace that talks to the database and Cloudflare platform bindings.
-- **better-auth** email OTP authentication at `/api/auth/*`.
-- Purchase operations exposed via **RPC only** on `FrontendEntrypoint` — no public REST routes for purchases.
+- **better-auth** email OTP authentication at `/api/auth/*` (with Expo plugin for mobile).
+- Purchase operations via **RPC** (`FrontendEntrypoint`) for the web frontend and **HTTP** (`/api/v1/*`) for mobile.
 
 ```
 handlers/purchases.ts  ← shared business logic
-  └── FrontendEntrypoint.createPurchase()  ← RPC (service binding)
+  ├── FrontendEntrypoint.createPurchase()  ← RPC (web service binding)
+  └── POST /api/v1/purchases               ← HTTP (mobile @costly/api-client)
 ```
+
+## HTTP v1 routes (authenticated)
+
+| Route | Method | Handler |
+| --- | --- | --- |
+| `/api/v1/purchases` | GET | List purchases (query: `limit`, `offset`) |
+| `/api/v1/purchases` | POST | Create purchase |
+| `/api/v1/purchases/:purchaseId` | GET | Get purchase |
+| `/api/v1/purchases/:purchaseId` | PUT | Update purchase |
+| `/api/v1/balance` | GET | Current balance |
+| `/api/v1/settlements` | POST | Settle all purchases |
+
+All v1 routes require a valid Better Auth session cookie.
 
 ## Stack
 

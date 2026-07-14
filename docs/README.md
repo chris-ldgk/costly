@@ -46,4 +46,5 @@ For technical setup (commands, bindings, file layout), see the root [README](../
 
 ### Decisions
 
-- [2026-07-13 — Auth via HTTP (proxied) and purchases via RPC](./decisions/2026-07-13-auth-and-api-access.md)
+- [2026-07-13 — Auth via HTTP (proxied) and purchases via RPC](./decisions/2026-07-13-auth-and-api-access.md) (purchase REST section superseded)
+- [2026-07-14 — HTTP API for mobile and dual access](./decisions/2026-07-14-http-api-and-mobile.md)

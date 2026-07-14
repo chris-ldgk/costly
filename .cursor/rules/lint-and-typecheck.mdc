@@ -28,11 +28,13 @@ Targeted checks when the change is scoped:
 ```bash
 bun run typecheck:api
 bun run typecheck:frontend
+bun run typecheck:mobile
 bun run typecheck:api-client
 bun run typecheck:components
 
 bun run --filter @costly/api lint
 bun run --filter frontend lint
+bun run --filter @costly/mobile lint
 bun run --filter @costly/api-client lint
 bun run --filter @costly/components lint
 ```
@@ -61,6 +63,7 @@ After making code changes:
 | --- | --- | --- |
 | `apps/api` | `@costly/api` | `typecheck`, `lint` |
 | `apps/frontend` | `frontend` | `typecheck`, `lint` |
+| `apps/mobile` | `@costly/mobile` | `typecheck`, `lint` |
 | `packages/api-client` | `@costly/api-client` | `typecheck`, `lint` |
 | `packages/components` | `@costly/components` | `typecheck`, `lint` |
 
