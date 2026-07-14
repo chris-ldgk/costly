@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { FeatherLayoutGrid, FeatherPencil, FeatherTable } from "@subframe/core";
 import { Badge, Button, Table, Tabs } from "@costly/components";
@@ -22,12 +22,16 @@ function PurchasesPage() {
   const { purchases: initialPurchases } = Route.useLoaderData();
   const getPurchases = useServerFn(getPurchasesFn);
   const [view, setView] = useState<ViewMode>("cards");
+  const queryClient = useQueryClient();
 
-  const { data: purchases } = useQuery({
-    initialData: initialPurchases,
-    queryKey: ["purchases"],
-    queryFn: () => getPurchases(),
-  });
+  const { data: purchases } = useQuery(
+    {
+      initialData: initialPurchases,
+      queryKey: ["purchases"],
+      queryFn: () => getPurchases(),
+    },
+    queryClient,
+  );
 
   return (
     <main className="mx-auto max-w-lg space-y-4 px-4 py-4">
@@ -35,7 +39,11 @@ function PurchasesPage() {
         <h2 className="text-sm font-medium text-neutral-700">All purchases</h2>
 
         {purchases.length > 0 ? (
-          <Tabs className="w-auto shrink-0" role="tablist" aria-label="View mode">
+          <Tabs
+            className="w-auto shrink-0"
+            role="tablist"
+            aria-label="View mode"
+          >
             <Tabs.Item
               role="tab"
               aria-selected={view === "cards"}

@@ -23,11 +23,14 @@ function BalancePage() {
   const getBalance = useServerFn(getBalanceFn);
   const settleAll = useServerFn(settleAllPurchasesFn);
 
-  const { data: balance } = useQuery({
-    initialData: initialBalance,
-    queryKey: ["balance"],
-    queryFn: () => getBalance(),
-  });
+  const { data: balance } = useQuery(
+    {
+      initialData: initialBalance,
+      queryKey: ["balance"],
+      queryFn: () => getBalance(),
+    },
+    queryClient,
+  );
 
   const settleMutation = useMutation({
     mutationFn: () => settleAll(),
