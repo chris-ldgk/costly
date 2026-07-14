@@ -6,7 +6,7 @@ TanStack Start **Costly** app — mobile-first PWA for tracking shared purchases
 
 - Server-rendered React UI; **purchase data** via Cloudflare service bindings and server functions (RPC).
 - **Auth** from the browser uses `VITE_API_URL` (email OTP via auth client).
-- Installable as a PWA (vite-plugin-pwa + web manifest).
+- Installable via the static web manifest (no service worker caching).
 
 ## Routes
 
@@ -33,7 +33,7 @@ src/
 bun run dev              # Dev server on port 3000
 bun run generate-routes  # Regenerate route tree after route changes
 bun run cf-typegen       # Regenerate bindings (includes API RPC types)
-bun run build            # Production build (includes service worker)
+bun run build            # Production build
 ```
 
 ## Deployment

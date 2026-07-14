@@ -64,18 +64,10 @@ export const deletePurchaseFn = createServerFn({ method: "POST" })
     return rpcPlain(context.lib.api.deletePurchase(data.purchaseId));
   });
 
-export const PURCHASES_PAGE_SIZE = 20;
-
-const purchaseListQuerySchema = z.object({
-  limit: z.number().int().min(1).max(100).default(PURCHASES_PAGE_SIZE),
-  offset: z.number().int().min(0).default(0),
-});
-
 export const getPurchasesFn = createServerFn({ method: "GET" })
   .middleware([authMiddleware])
-  .validator(purchaseListQuerySchema)
-  .handler(async ({ context, data }) => {
-    return rpcPlain(context.lib.api.getPurchases(data));
+  .handler(async ({ context }) => {
+    return rpcPlain(context.lib.api.getPurchases());
   });
 
 export const getBalanceFn = createServerFn({ method: "GET" })

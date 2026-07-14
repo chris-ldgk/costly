@@ -107,11 +107,3 @@ export const createPurchaseInputSchema = z.object({
 });
 export type CreatePurchaseInput = z.infer<typeof createPurchaseInputSchema>;
 export type UpdatePurchaseInput = CreatePurchaseInput;
-
-export const PURCHASES_PAGE_SIZE = 20;
-
-export const purchaseListQuerySchema = z.object({
-  limit: z.number().int().min(1).max(100).default(PURCHASES_PAGE_SIZE),
-  offset: z.number().int().min(0).default(0),
-});
-export type PurchaseListQuery = z.infer<typeof purchaseListQuerySchema>;

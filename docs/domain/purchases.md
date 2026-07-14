@@ -80,11 +80,4 @@ Either user may delete a purchase.
 
 ## Purchase list (overview)
 
-The purchases overview loads **20 items per page** (`limit` + `offset`), newest first by `purchasedAt`. The API returns `{ purchases, hasMore }`; the UI shows a **Load more** button when `hasMore` is true.
-
-| Parameter | Default | Rule |
-| --- | --- | --- |
-| `limit` | 20 | 1–100 |
-| `offset` | 0 | Non-negative skip count |
-
-Balance calculation always uses **all** unsettled purchases — pagination applies only to the list view.
+The purchases overview loads **all purchases** at once, newest first by `createdAt`.

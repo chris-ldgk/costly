@@ -2,9 +2,7 @@ import type { Lib } from "../utils/lib";
 import { desc, eq, isNull } from "drizzle-orm";
 import {
   createPurchaseInputSchema,
-  purchaseListQuerySchema,
   type CreatePurchaseInput,
-  type PurchaseListQuery,
   type UpdatePurchaseInput,
 } from "../schema";
 
@@ -27,27 +25,14 @@ export async function createPurchase(
   return purchase;
 }
 
-export async function getPurchases(
-  lib: Lib,
-  query: PurchaseListQuery = purchaseListQuerySchema.parse({}),
-) {
-  const { limit, offset } = purchaseListQuerySchema.parse(query);
-
-  const rows = await lib.db.query.purchases.findMany({
+export async function getPurchases(lib: Lib) {
+  return lib.db.query.purchases.findMany({
     with: {
       createdBy: true,
       settlement: true,
     },
-    orderBy: (purchases, { desc }) => [desc(purchases.purchasedAt)],
-    limit: limit + 1,
-    offset,
+    orderBy: (purchases, { desc }) => [desc(purchases.createdAt)],
   });
-
-  const hasMore = rows.length > limit;
-  return {
-    purchases: hasMore ? rows.slice(0, limit) : rows,
-    hasMore,
-  };
 }
 
 export async function getPurchase(lib: Lib, purchaseId: string) {

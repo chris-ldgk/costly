@@ -21,7 +21,7 @@ docs/           # Product and domain documentation
 | Monorepo | Bun workspaces, TypeScript, ESLint                                                 |
 | Runtime  | Cloudflare Workers                                                                 |
 | API      | Hono, Drizzle ORM, better-auth (email OTP), PostgreSQL via Hyperdrive             |
-| Frontend | TanStack Start/Router/Query/Form, React 19, PWA (vite-plugin-pwa), Tailwind CSS v3 |
+| Frontend | TanStack Start/Router/Query/Form, React 19, Tailwind CSS v3 |
 | UI       | `@costly/components` (Subframe)                                                    |
 
 ## Core principles
