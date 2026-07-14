@@ -1,5 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Button, Dialog } from "@costly/components";
 import { useState } from "react";
@@ -16,28 +16,17 @@ export const Route = createFileRoute("/_app/")({
 });
 
 function BalancePage() {
-  const { balance: initialBalance } = Route.useLoaderData();
-  const queryClient = useQueryClient();
+  const { balance } = Route.useLoaderData();
+  const router = useRouter();
   const [settleOpen, setSettleOpen] = useState(false);
 
-  const getBalance = useServerFn(getBalanceFn);
   const settleAll = useServerFn(settleAllPurchasesFn);
-
-  const { data: balance } = useQuery(
-    {
-      initialData: initialBalance,
-      queryKey: ["balance"],
-      queryFn: () => getBalance(),
-    },
-    queryClient,
-  );
 
   const settleMutation = useMutation({
     mutationFn: () => settleAll(),
     onSuccess: async () => {
       setSettleOpen(false);
-      await queryClient.invalidateQueries({ queryKey: ["purchases"] });
-      await queryClient.invalidateQueries({ queryKey: ["balance"] });
+      await router.invalidate();
     },
   });
 

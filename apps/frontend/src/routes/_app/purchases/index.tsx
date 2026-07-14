@@ -1,6 +1,4 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
 import { FeatherLayoutGrid, FeatherPencil, FeatherTable } from "@subframe/core";
 import { Badge, Button, Table, Tabs } from "@costly/components";
 import { useState } from "react";
@@ -19,19 +17,8 @@ export const Route = createFileRoute("/_app/purchases/")({
 });
 
 function PurchasesPage() {
-  const { purchases: initialPurchases } = Route.useLoaderData();
-  const getPurchases = useServerFn(getPurchasesFn);
+  const { purchases } = Route.useLoaderData();
   const [view, setView] = useState<ViewMode>("cards");
-  const queryClient = useQueryClient();
-
-  const { data: purchases } = useQuery(
-    {
-      initialData: initialPurchases,
-      queryKey: ["purchases"],
-      queryFn: () => getPurchases(),
-    },
-    queryClient,
-  );
 
   return (
     <main className="mx-auto max-w-lg space-y-4 px-4 py-4">

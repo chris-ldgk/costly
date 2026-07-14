@@ -80,4 +80,4 @@ Either user may delete a purchase.
 
 ## Purchase list (overview)
 
-The purchases overview loads **all purchases** at once, newest first by `createdAt`.
+The purchases overview loads **all purchases** at once on page load (route loader), newest first by `createdAt`. No client-side query cache — data refreshes when you navigate to the page or after mutations via `router.invalidate()`.
