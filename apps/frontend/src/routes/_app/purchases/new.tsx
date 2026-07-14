@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useForm } from "@tanstack/react-form";
 import { Button, TextField } from "@costly/components";
+import { PartnerShareSlider } from "#/components/PartnerShareSlider";
 import { createPurchaseFn } from "#/handlers/purchases";
 import { parseEurToCents } from "#/utils/format";
 
@@ -30,7 +31,7 @@ function NewPurchasePage() {
     defaultValues: {
       name: "",
       amount: "",
-      partnerSharePercent: "50",
+      partnerSharePercent: 50,
       purchasedAt: today,
     },
     onSubmit: async ({ value }) => {
@@ -38,7 +39,7 @@ function NewPurchasePage() {
         data: {
           name: value.name.trim(),
           amountCents: parseEurToCents(value.amount),
-          partnerSharePercent: Number.parseInt(value.partnerSharePercent, 10),
+          partnerSharePercent: value.partnerSharePercent,
           purchasedAt: new Date(value.purchasedAt),
         },
       });
@@ -95,20 +96,10 @@ function NewPurchasePage() {
 
         <form.Field name="partnerSharePercent">
           {(field) => (
-            <TextField
-              label="Partner's share (%)"
-              helpText="How much of this cost is your partner's share"
-              className="w-full"
-            >
-              <TextField.Input
-                type="number"
-                min={0}
-                max={100}
-                inputMode="numeric"
-                value={field.state.value}
-                onChange={(e) => field.handleChange(e.target.value)}
-              />
-            </TextField>
+            <PartnerShareSlider
+              value={field.state.value}
+              onChange={field.handleChange}
+            />
           )}
         </form.Field>
 
