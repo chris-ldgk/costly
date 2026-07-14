@@ -38,7 +38,7 @@ export async function getPurchases(
       createdBy: true,
       settlement: true,
     },
-    orderBy: (purchases, { desc }) => [desc(purchases.purchasedAt)],
+    orderBy: (purchases, { desc }) => [desc(purchases.createdAt)],
     limit: limit + 1,
     offset,
   });
