@@ -2,7 +2,6 @@ import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools";
-import { UnregisterServiceWorkers } from "#/components/UnregisterServiceWorkers";
 
 import tailwindCss from "../styles/tailwind.css?url&no-inline";
 
@@ -82,7 +81,6 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body>
-        <UnregisterServiceWorkers />
         {children}
         <TanStackDevtools
           config={{

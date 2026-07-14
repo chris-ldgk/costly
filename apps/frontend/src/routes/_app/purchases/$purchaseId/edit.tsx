@@ -4,7 +4,7 @@ import {
   notFound,
   useRouter,
 } from "@tanstack/react-router";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useForm } from "@tanstack/react-form";
 import { useState } from "react";
@@ -42,6 +42,7 @@ export const Route = createFileRoute("/_app/purchases/$purchaseId/edit")({
 function EditPurchasePage() {
   const { purchase } = Route.useLoaderData();
   const router = useRouter();
+  const queryClient = useQueryClient();
   const updatePurchase = useServerFn(updatePurchaseFn);
   const deletePurchase = useServerFn(deletePurchaseFn);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -49,7 +50,8 @@ function EditPurchasePage() {
   const mutation = useMutation({
     mutationFn: updatePurchase,
     onSuccess: async () => {
-      await router.invalidate();
+      await queryClient.invalidateQueries({ queryKey: ["purchases"] });
+      await queryClient.invalidateQueries({ queryKey: ["balance"] });
       await router.navigate({ to: "/purchases" });
     },
   });
@@ -58,7 +60,8 @@ function EditPurchasePage() {
     mutationFn: deletePurchase,
     onSuccess: async () => {
       setDeleteOpen(false);
-      await router.invalidate();
+      await queryClient.invalidateQueries({ queryKey: ["purchases"] });
+      await queryClient.invalidateQueries({ queryKey: ["balance"] });
       await router.navigate({ to: "/purchases" });
     },
   });

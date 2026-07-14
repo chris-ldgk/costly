@@ -1,24 +1,54 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { FeatherLayoutGrid, FeatherPencil, FeatherTable } from "@subframe/core";
 import { Badge, Button, Table, Tabs } from "@costly/components";
 import { useState } from "react";
-import { getPurchasesFn } from "#/handlers/purchases";
+import {
+  getPurchasesFn,
+  PURCHASES_PAGE_SIZE,
+} from "#/handlers/purchases";
 import { formatDate, formatEur } from "#/utils/format";
 
-type Purchase = Awaited<ReturnType<typeof getPurchasesFn>>[number];
+type Purchase = Awaited<
+  ReturnType<typeof getPurchasesFn>
+>["purchases"][number];
 type ViewMode = "cards" | "table";
 
 export const Route = createFileRoute("/_app/purchases/")({
   loader: async () => {
-    const purchases = await getPurchasesFn();
-    return { purchases };
+    const initialPage = await getPurchasesFn({
+      data: { limit: PURCHASES_PAGE_SIZE, offset: 0 },
+    });
+    return { initialPage };
   },
   component: PurchasesPage,
 });
 
 function PurchasesPage() {
-  const { purchases } = Route.useLoaderData();
+  const { initialPage } = Route.useLoaderData();
+  const getPurchases = useServerFn(getPurchasesFn);
   const [view, setView] = useState<ViewMode>("cards");
+
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useInfiniteQuery({
+      queryKey: ["purchases"],
+      queryFn: ({ pageParam }) =>
+        getPurchases({
+          data: { limit: PURCHASES_PAGE_SIZE, offset: pageParam },
+        }),
+      initialPageParam: 0,
+      getNextPageParam: (lastPage, allPages) =>
+        lastPage.hasMore
+          ? allPages.reduce((sum, page) => sum + page.purchases.length, 0)
+          : undefined,
+      initialData: {
+        pages: [initialPage],
+        pageParams: [0],
+      },
+    });
+
+  const purchases = data.pages.flatMap((page) => page.purchases);
 
   return (
     <main className="mx-auto max-w-lg space-y-4 px-4 py-4">
@@ -26,11 +56,7 @@ function PurchasesPage() {
         <h2 className="text-sm font-medium text-neutral-700">All purchases</h2>
 
         {purchases.length > 0 ? (
-          <Tabs
-            className="w-auto shrink-0"
-            role="tablist"
-            aria-label="View mode"
-          >
+          <Tabs className="w-auto shrink-0" role="tablist" aria-label="View mode">
             <Tabs.Item
               role="tab"
               aria-selected={view === "cards"}
@@ -60,6 +86,21 @@ function PurchasesPage() {
       ) : (
         <PurchaseTable purchases={purchases} />
       )}
+
+      {hasNextPage ? (
+        <Button
+          type="button"
+          variant="neutral-secondary"
+          size="large"
+          className="w-full"
+          disabled={isFetchingNextPage}
+          onClick={() => {
+            void fetchNextPage();
+          }}
+        >
+          {isFetchingNextPage ? "Loading…" : "Load more"}
+        </Button>
+      ) : null}
     </main>
   );
 }

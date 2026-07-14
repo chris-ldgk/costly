@@ -129,22 +129,28 @@ Route loader / useServerFn()
 
 Server functions live in `apps/frontend/src/handlers/`. Use `rpcPlain()` / `withRpc()` from `#/utils/disposable` to clone RPC results and call `Symbol.dispose()` on service-binding returns.
 
-### 5. Server-first data fetching via route loaders
+### 5. Server-first data fetching with TanStack Query
 
-Routes fetch data on the server in the `loader` and render it from `Route.useLoaderData()` — no TanStack Query cache for reads:
+Routes fetch data on the server in the `loader`, then hydrate TanStack Query on the client:
 
 ```typescript
 // loader: server-side fetch
-loader: async () => {
-  const purchases = await getPurchasesFn();
-  return { purchases };
+loader: async ({ context: { search } }) => {
+  const data = await getAuthorsFn({ data: search });
+  return { authors: data };
 },
 
-// component: loader data only (refetched on navigation / router.invalidate())
-const { purchases } = Route.useLoaderData();
+// component: hydrate + client refetch
+const { authors: initialAuthors } = Route.useLoaderData();
+const getAuthors = useServerFn(getAuthorsFn);
+const { data: authors } = useQuery({
+  initialData: initialAuthors,
+  queryKey: ["authors", search],
+  queryFn: () => getAuthors({ data: search }),
+});
 ```
 
-After mutations, call `router.invalidate()` so active route loaders refetch (e.g. after create, edit, delete, or settle).
+Mutations invalidate related query keys on success.
 
 ### 6. UI components from `@costly/components`
 
@@ -157,5 +163,5 @@ Use `@costly/components` for UI primitives and layouts. New custom components in
 3. **Hono router** — `apps/api/src/routers/api/v1/<resource>.ts` + mount in `v1/index.ts`
 4. **RPC methods** — add to `FrontendEntrypoint` in `apps/api/src/index.ts`
 5. **Server functions** — `apps/frontend/src/handlers/<resource>.ts`
-6. **Route** — `apps/frontend/src/routes/...` with loader + `useLoaderData()` pattern
+6. **Route** — `apps/frontend/src/routes/...` with loader + useQuery pattern
 7. **Regenerate types** — `bun run cf-typegen` in both apps after binding changes
